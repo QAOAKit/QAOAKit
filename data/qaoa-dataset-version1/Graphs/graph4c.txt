@@ -1,0 +1,30 @@
+
+Graph 1, order 4.
+001
+01
+1
+
+Graph 2, order 4.
+011
+01
+0
+
+Graph 3, order 4.
+011
+01
+1
+
+Graph 4, order 4.
+011
+11
+0
+
+Graph 5, order 4.
+011
+11
+1
+
+Graph 6, order 4.
+111
+11
+1

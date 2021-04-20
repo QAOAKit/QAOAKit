@@ -1,0 +1,9 @@
+From left to right the data columns are:
+1. graph number
+2. Maximum cut (theoretical optimal solution)
+3. <C> for initial state
+4. <C> for optimized state
+5. probability for maximum cut for optimized state
+6. p (number of qaoa layers)
+7,...,7+p.  parameters normalized by pi: \beta_1/pi,...,\beta_p/pi
+7+p+1,...,7+2p.  parameters normalized by pi: \gamma_1/pi,...,\gamma_p/pi
