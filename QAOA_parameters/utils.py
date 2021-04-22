@@ -2,24 +2,40 @@ import pickle
 import pynauty
 import networkx as nx
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
+utils_folder = Path(__file__).parent
 
 class LookupTableHandler:
+    """Singleton handling all the tables
+    constructed from the qaoa-dataset-version1
+
+    This object may consume a lot of memory!
+
+    Attributes:
+        graph2angles (dict): maps from n_qubits, p and graph_id to optimal parameters
+                graph2angles[n_qubits][p][graph_id] = {'beta':optimal_beta, 'gamma':optimal_gamma}
+        graph2pynauty (dict): maps from pynauty certificate to graph_id
+        full_table (pandas.DataFrame) : TBD
+    """
     def __init__(self):
         self.graph2angles = None
         self.graph2pynauty = None
-        self.folder = Path(__file__).parent
+        self.full_table = None
 
     def get_graph2angles(self):
         if self.graph2angles is None:
-            self.graph2angles = pickle.load(open(Path(self.folder, f"../data/lookup_tables/graph2angles.p"),"rb"))
+            self.graph2angles = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2angles.p"),"rb"))
         return self.graph2angles
 
     def get_graph2pynauty(self):
         if self.graph2pynauty is None:
-            self.graph2pynauty = pickle.load(open(Path(self.folder, f"../data/lookup_tables/graph2pynauty.p"),"rb"))
+            self.graph2pynauty = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2pynauty.p"),"rb"))
         return self.graph2pynauty
+
+    def get_full_table(self):
+        raise NotImplementedError("Full table WIP")
 
 lookup_table_handler = LookupTableHandler()
 
@@ -55,6 +71,12 @@ def opt_angles_for_graph(G, p):
     return graph2angles[G.number_of_nodes()][p][graph_id]
 
 
+def full_table_row(G, p):
+    """Returns full table row for a given NetworkX graph
+    """
+    raise NotImplementedError("Full table WIP")
+
+
 def angles_to_qaoa_format(angles):
     """ Converts from format in graph2angles
     into the format used by qaoa.py
@@ -63,6 +85,25 @@ def angles_to_qaoa_format(angles):
     angles['beta'] = np.pi*np.array(angles['beta'])
     angles['gamma'] = -np.pi*np.array(angles['gamma']) / 2
     return angles
+
+
+def load_results_file_into_dataframe(n_qubits,p):
+    """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
+    Column names are from ../data/qaoa-dataset-version1/Results/How_to_read_data_columns.txt 
+    """
+    colnames=['graph_id','C_{true opt}','C_init','C_opt','pr(max)','p']
+    for i in range(p):
+        colnames.append(f"beta_{i}/pi")
+    for i in range(p):
+        colnames.append(f"gamma_{i}/pi")
+    df = pd.read_csv(Path(utils_folder, f"../data/qaoa-dataset-version1/Results/p={p}/n={n_qubits}_p={p}.txt"), delim_whitespace=True, names=colnames, header=None, index_col='graph_id')
+    return df
+
+
+#############################
+# QAOA utils
+############################
+
 
 def state_num2str(basis_state_as_num, nqubits):
     return '{0:b}'.format(basis_state_as_num).zfill(nqubits)
