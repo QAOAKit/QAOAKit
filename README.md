@@ -22,7 +22,5 @@ pytest
 
 - [ ] Qtensor parameter conversion
 - [ ] Qiskit parameter conversion
-- [ ] Should the tables be built on install?
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
-- [ ] `test_angle_conversion.py` should be a test
 - [ ] Examples (in tests?)
