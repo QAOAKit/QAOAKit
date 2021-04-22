@@ -13,6 +13,8 @@ git clone https://code.ornl.gov/qci/qaoa-dataset-version1.git
 
 ```
 pip install -e .
+python QAOA_parameters/build_table_graph2pynauty_large.py
+python QAOA_parameters/build_full_qaoa_dataset_table.py
 pytest
 ```
 
