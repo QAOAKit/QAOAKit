@@ -8,6 +8,14 @@ The dataset is available here: https://code.ornl.gov/qci/qaoa-dataset-version1
 ```
 git clone https://code.ornl.gov/qci/qaoa-dataset-version1.git
 ```
+
+### Installation
+
+```
+pip install -e .
+pytest
+```
+
 ### TODO
 
 - [ ] Qtensor parameter conversion

@@ -5,5 +5,5 @@ setup(name='QAOA_parameters',
 	author='Ruslan Shaydulin',
 	author_email='rshaydu@g.clemson.edu',
 	packages=['QAOA_parameters'],
-    install_requires=['qiskit','pandas','networkx','numpy'],
+    install_requires=['qiskit','pandas','networkx','numpy','pytest'],
 	zip_safe=False)
