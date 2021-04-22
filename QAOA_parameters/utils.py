@@ -73,6 +73,9 @@ def opt_angles_for_graph(G, p):
     return graph2angles[G.number_of_nodes()][p][graph_id]
 
 
+def get_full_qaoa_dataset_table():
+    return lookup_table_handler.get_full_qaoa_dataset_table()
+
 def get_full_qaoa_dataset_table_row(G, p):
     """Returns full table row for a given NetworkX graph
     """
