@@ -17,12 +17,12 @@ class LookupTableHandler:
         graph2angles (dict): maps from n_qubits, p and graph_id to optimal parameters
                 graph2angles[n_qubits][p][graph_id] = {'beta':optimal_beta, 'gamma':optimal_gamma}
         graph2pynauty (dict): maps from pynauty certificate to graph_id
-        full_table (pandas.DataFrame) : TBD
+        full_qaoa_dataset_table (pandas.DataFrame) : TBD
     """
     def __init__(self):
         self.graph2angles = None
         self.graph2pynauty = None
-        self.full_table = None
+        self.full_qaoa_dataset_table = None
 
     def get_graph2angles(self):
         if self.graph2angles is None:
@@ -34,8 +34,10 @@ class LookupTableHandler:
             self.graph2pynauty = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2pynauty.p"),"rb"))
         return self.graph2pynauty
 
-    def get_full_table(self):
-        raise NotImplementedError("Full table WIP")
+    def get_full_qaoa_dataset_table(self):
+        if self.full_qaoa_dataset_table is None:
+            self.full_qaoa_dataset_table = pd.read_pickle(Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")).set_index(['pynauty_cert','p_max']) 
+        return self.full_qaoa_dataset_table
 
 lookup_table_handler = LookupTableHandler()
 
@@ -71,11 +73,16 @@ def opt_angles_for_graph(G, p):
     return graph2angles[G.number_of_nodes()][p][graph_id]
 
 
-def full_table_row(G, p):
+def get_full_qaoa_dataset_table_row(G, p):
     """Returns full table row for a given NetworkX graph
     """
-    raise NotImplementedError("Full table WIP")
+    full_qaoa_dataset_table = lookup_table_handler.get_full_qaoa_dataset_table()
 
+    g = pynauty.Graph(number_of_vertices=G.number_of_nodes(), directed=nx.is_directed(G),
+                adjacency_dict = get_adjacency_dict(G))
+    cert = pynauty.certificate(g)
+
+    return full_qaoa_dataset_table.loc[(cert,p)]
 
 def angles_to_qaoa_format(angles):
     """ Converts from format in graph2angles
@@ -90,6 +97,8 @@ def angles_to_qaoa_format(angles):
 def load_results_file_into_dataframe(n_qubits,p):
     """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
     Column names are from ../data/qaoa-dataset-version1/Results/How_to_read_data_columns.txt 
+    One column is added:
+    p_max : maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
     """
     colnames=['graph_id','C_{true opt}','C_init','C_opt','pr(max)','p']
     for i in range(p):
@@ -97,6 +106,8 @@ def load_results_file_into_dataframe(n_qubits,p):
     for i in range(p):
         colnames.append(f"gamma_{i}/pi")
     df = pd.read_csv(Path(utils_folder, f"../data/qaoa-dataset-version1/Results/p={p}/n={n_qubits}_p={p}.txt"), delim_whitespace=True, names=colnames, header=None, index_col='graph_id')
+    df['p_max'] = p # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+    assert((df['p_max'] >= df['p']).all())
     return df
 
 
