@@ -2,20 +2,23 @@ import pickle
 import pynauty
 import networkx as nx
 import numpy as np
+from pathlib import Path
+
 
 class LookupTableHandler:
     def __init__(self):
         self.graph2angles = None
         self.graph2pynauty = None
+        self.folder = Path(__file__).parent
 
     def get_graph2angles(self):
         if self.graph2angles is None:
-            self.graph2angles = pickle.load(open(f"../data/lookup_tables/graph2angles.p","rb"))
+            self.graph2angles = pickle.load(open(Path(self.folder, f"../data/lookup_tables/graph2angles.p"),"rb"))
         return self.graph2angles
 
     def get_graph2pynauty(self):
         if self.graph2pynauty is None:
-            self.graph2pynauty = pickle.load(open(f"../data/lookup_tables/graph2pynauty.p","rb"))
+            self.graph2pynauty = pickle.load(open(Path(self.folder, f"../data/lookup_tables/graph2pynauty.p"),"rb"))
         return self.graph2pynauty
 
 lookup_table_handler = LookupTableHandler()
