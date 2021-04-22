@@ -61,13 +61,6 @@ def angles_to_qaoa_format(angles):
     angles['gamma'] = -np.pi*np.array(angles['gamma']) / 2
     return angles
 
-
-def max_cut_on_complete_graph_obj(resstr):
-    x = [int(i) for i in resstr[::-1]]
-    n = len(x)
-    return n*sum(x) - (sum(x))**2
-
-
 def state_num2str(basis_state_as_num, nqubits):
     return '{0:b}'.format(basis_state_as_num).zfill(nqubits)
 
