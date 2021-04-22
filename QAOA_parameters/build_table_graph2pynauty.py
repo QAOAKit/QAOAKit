@@ -3,8 +3,11 @@ import re
 import copy
 import pynauty
 import pickle
+from pathlib import Path
 
 from utils import get_adjacency_dict
+
+build_table_graph2pynauty_folder = Path(__file__).parent
 
 n_graphs={}
 
@@ -25,7 +28,7 @@ for n_qubits in range(3,10):
     # tables[n_qubits]['pynautycert2graph_id'] = {}
     # tables[n_qubits]['pynautycert2graph'] = {}
     
-    with open("../data/qaoa-dataset-version1/Graphs/graph"+str(n_qubits)+"c.txt") as f:
+    with open(Path(build_table_graph2pynauty_folder, "../data/qaoa-dataset-version1/Graphs/graph"+str(n_qubits)+"c.txt")) as f:
         for graph in range(1,n_graphs[n_qubits]+1):
             f.readline(-1)#first line is blank
             line_with_id = f.readline(-1) #second line has graph number and order
@@ -58,4 +61,4 @@ for n_qubits in range(3,10):
     # assert(len(tables[n_qubits]['pynautycert2graph']) == n_graphs[n_qubits])
     print(f"Done with n={n_qubits}")
 
-pickle.dump(tables, open(f"../data/lookup_tables/graph2pynauty.p", "wb"))
+pickle.dump(tables, open(Path(build_table_graph2pynauty_folder, f"../data/lookup_tables/graph2pynauty.p"), "wb"))
