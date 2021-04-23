@@ -22,7 +22,7 @@ backend = Aer.get_backend('qasm_simulator')
 print(backend.run(qc).result().get_counts())
 ```
 
-Almost all counts you get should correspond to one of the two optimal MaxCut solutions for star graph: `000001` or `000001`.
+Almost all counts you get should correspond to one of the two optimal MaxCut solutions for star graph: `000001` or `111110`.
 
 ### Installation
 
