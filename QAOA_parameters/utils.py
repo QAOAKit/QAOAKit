@@ -97,6 +97,16 @@ def angles_to_qaoa_format(angles):
     return angles
 
 
+def angles_to_qiskit_format(angles):
+    """ Converts from format in graph2angles
+    into the format used by QAOAVarForm
+    from qiskit.aqua.algorithms.minimum_eigen_solvers.qaoa.var_form import QAOAVarForm
+    Note ordering from https://github.com/Qiskit/qiskit-aqua/issues/1246
+    returns np.array
+    """
+    return np.hstack([-np.pi*np.array(angles['gamma']), np.pi*np.array(angles['beta'])])
+
+
 def load_results_file_into_dataframe(n_qubits,p):
     """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
     Column names are from ../data/qaoa-dataset-version1/Results/How_to_read_data_columns.txt 
