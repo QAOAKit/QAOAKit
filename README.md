@@ -37,4 +37,4 @@ pytest
 
 - [ ] Qtensor parameter conversion
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
-- [ ] Examples (in tests?)
+- [ ] Continuous integration (eventually, if the goal is to make public)
