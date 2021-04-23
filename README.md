@@ -21,6 +21,5 @@ pytest
 ### TODO
 
 - [ ] Qtensor parameter conversion
-- [ ] Qiskit parameter conversion
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
 - [ ] Examples (in tests?)
