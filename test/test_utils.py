@@ -9,7 +9,7 @@ from qiskit.optimization.applications.ising.max_cut import get_operator
 from qiskit.aqua.algorithms.minimum_eigen_solvers.qaoa.var_form import QAOAVarForm
 from qiskit.quantum_info import Statevector
 
-from QAOA_parameters import opt_angles_for_graph, get_graph_id, angles_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table
+from QAOA_parameters import opt_angles_for_graph, get_graph_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
 from QAOA_parameters.utils import obj_from_statevector, maxcut_obj
 from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
 
@@ -32,12 +32,23 @@ def test_angle_conversion():
                 obj = partial(maxcut_obj, G=row['G'])
                 opt_cut = row['C_opt']
                 angles = angles_to_qaoa_format(opt_angles_for_graph(row['G'], row['p_max']))
+                assert(np.allclose(angles['beta'], beta_to_qaoa_format(row['beta'])))
+                assert(np.allclose(angles['gamma'], gamma_to_qaoa_format(row['gamma'])))
                 qc = get_maxcut_qaoa_circuit(row['G'], angles['beta'], angles['gamma'])
                 backend = Aer.get_backend('statevector_simulator')
                 res = backend.run(qc).result()
                 sv = res.get_statevector()
                 obj_val = obj_from_statevector(sv, obj)
                 assert(np.isclose(opt_cut, obj_val))
+
+def test_qaoa_maxcut_energy():
+    full_qaoa_dataset_table = get_full_qaoa_dataset_table()
+    for n_qubits in [3,4]:
+        p = 3
+        df = full_qaoa_dataset_table.reset_index()
+        df = df[(df['n'] == n_qubits) & (df['p_max'] == p)]
+        for _, row in df.iterrows():
+            assert(np.isclose(row['C_opt'], qaoa_maxcut_energy(row['G'], beta_to_qaoa_format(row['beta']), gamma_to_qaoa_format(row['gamma']))))
 
 def test_qiskit_angle_conversion():
     full_qaoa_dataset_table = get_full_qaoa_dataset_table()
@@ -66,7 +77,7 @@ def test_qiskit_qaoa_circuit():
         for _, row in df.iterrows():
             G = row['G']
             backend = Aer.get_backend('statevector_simulator')
-            C, offset = get_operator(nx.adjacency_matrix(G))
+            C, _ = get_operator(nx.adjacency_matrix(G))
             vf = QAOAVarForm(C.to_opflow(), p)
             angles1 = angles_to_qiskit_format(opt_angles_for_graph(row['G'], row['p_max']))
             qc1 = vf.construct_circuit(angles1)

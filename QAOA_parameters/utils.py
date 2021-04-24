@@ -1,9 +1,14 @@
 import pickle
+import copy
 import pynauty
 import networkx as nx
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from functools import partial
+from qiskit import Aer
+
+from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
 
 utils_folder = Path(__file__).parent
 
@@ -70,7 +75,7 @@ def get_graph_id(G):
 def opt_angles_for_graph(G, p):
     graph2angles = lookup_table_handler.get_graph2angles()
     graph_id = get_graph_id(G)
-    return graph2angles[G.number_of_nodes()][p][graph_id]
+    return copy.deepcopy(graph2angles[G.number_of_nodes()][p][graph_id])
 
 
 def get_full_qaoa_dataset_table():
@@ -92,10 +97,23 @@ def angles_to_qaoa_format(angles):
     into the format used by qaoa.py
     get_maxcut_qaoa_circuit(G, angles['beta'], angles['gamma'])
     """
-    angles['beta'] = np.pi*np.array(angles['beta'])
-    angles['gamma'] = -np.pi*np.array(angles['gamma']) / 2
-    return angles
+    res = copy.deepcopy(angles)
+    res['beta'] = beta_to_qaoa_format(res['beta'])
+    res['gamma'] = gamma_to_qaoa_format(res['gamma'])
+    return res
 
+def beta_to_qaoa_format(beta):
+    """ Converts from format in graph2angles
+    into the format used by qaoa.py
+    """
+    return np.pi*np.array(beta)
+
+def gamma_to_qaoa_format(gamma):
+    """ Converts from format in graph2angles
+    into the format used by qaoa.py
+    get_maxcut_qaoa_circuit(G, angles['beta'], angles['gamma'])
+    """
+    return -np.pi*np.array(gamma) / 2
 
 def angles_to_qiskit_format(angles):
     """ Converts from format in graph2angles
@@ -195,3 +213,14 @@ def maxcut_obj(x,G):
         if x[e[0]] != x[e[1]]:
             cut += 1
     return cut
+
+
+def qaoa_maxcut_energy(G, beta, gamma):
+    """Computes MaxCut QAOA energy for graph G
+    qaoa format (`angles_to_qaoa_format`) used for beta, gamma
+    """
+    obj = partial(maxcut_obj, G=G)
+    qc = get_maxcut_qaoa_circuit(G, beta, gamma)
+    backend = Aer.get_backend('statevector_simulator')
+    sv = backend.run(qc).result().get_statevector()
+    return obj_from_statevector(sv, obj)
