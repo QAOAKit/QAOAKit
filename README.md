@@ -27,6 +27,8 @@ Almost all counts you get should correspond to one of the two optimal MaxCut sol
 ### Installation
 
 ```
+git clone https://github.com/rsln-s/QAOA_parameters.git
+cd QAOA_parameters
 pip install -e .
 python QAOA_parameters/build_table_graph2pynauty_large.py
 python QAOA_parameters/build_full_qaoa_dataset_table.py
