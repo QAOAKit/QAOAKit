@@ -35,6 +35,9 @@ python QAOA_parameters/build_full_qaoa_dataset_table.py
 pytest
 ```
 
+If you have an issue like "Illegal Instruction (core dumped)", you may have to install Nauty separately: https://pallini.di.uniroma1.it/
+
+
 ### TODO
 
 - [ ] Qtensor parameter conversion
