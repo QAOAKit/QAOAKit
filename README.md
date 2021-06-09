@@ -40,4 +40,4 @@ pytest
 - [ ] Qtensor parameter conversion
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
 - [ ] Continuous integration (eventually, if the goal is to make public)
-- [ ] Add `pynauty-nice` to `setup.py` to ease installation (https://pypi.org/project/pynauty-nice/)
+- [ ] Add `pynauty-nice` to `setup.py` to ease installation (https://pypi.org/project/pynauty-nice/) or `pynauty` (https://github.com/michaelRadigan/pynauty-nice/issues/2, https://pypi.org/project/pynauty/)
