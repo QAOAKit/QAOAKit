@@ -1,6 +1,5 @@
 # Set of tools for manipulating the ORNL qaoa dataset
 
-
 ### Example
 
 ```python
@@ -26,6 +25,15 @@ Almost all counts you get should correspond to one of the two optimal MaxCut sol
 
 ### Installation
 
+Optional: create an Anaconda environment
+
+```
+conda create -n qaoa python=3
+conda activate qaoa
+```
+
+Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
+
 ```
 git clone https://github.com/rsln-s/QAOA_parameters.git
 cd QAOA_parameters
@@ -35,9 +43,12 @@ python QAOA_parameters/build_full_qaoa_dataset_table.py
 pytest
 ```
 
+If you have an issue like "Illegal Instruction (core dumped)", you may have to force pip to recompile Nauty binaries (`pip install --no-binary pynauty pynauty`) or install Nauty separately: https://pallini.di.uniroma1.it/
+
+
 ### TODO
 
 - [ ] Qtensor parameter conversion
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
 - [ ] Continuous integration (eventually, if the goal is to make public)
-- [ ] Add `pynauty-nice` to `setup.py` to ease installation (https://pypi.org/project/pynauty-nice/) or `pynauty` (https://github.com/michaelRadigan/pynauty-nice/issues/2, https://pypi.org/project/pynauty/). Maybe you need `pip install --no-binary pynauty pynauty`
+- [x] Add `pynauty-nice` to `setup.py` to ease installation (https://pypi.org/project/pynauty-nice/) or `pynauty` (https://github.com/michaelRadigan/pynauty-nice/issues/2, https://pypi.org/project/pynauty/). Maybe you need `pip install --no-binary pynauty pynauty`
