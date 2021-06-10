@@ -27,7 +27,7 @@ for n_qubits in range(3,10):
     # tables[n_qubits]['graph_id2graph'] = {}
     # tables[n_qubits]['pynautycert2graph_id'] = {}
     # tables[n_qubits]['pynautycert2graph'] = {}
-    
+
     with open(Path(build_table_graph2pynauty_folder, "../data/qaoa-dataset-version1/Graphs/graph"+str(n_qubits)+"c.txt")) as f:
         for graph in range(1,n_graphs[n_qubits]+1):
             f.readline(-1)#first line is blank
@@ -49,12 +49,12 @@ for n_qubits in range(3,10):
             g = pynauty.Graph(number_of_vertices=G.number_of_nodes(), directed=nx.is_directed(G),
                         adjacency_dict = get_adjacency_dict(G))
             cert = pynauty.certificate(g)
-            # tables[n_qubits]['graph_id2graph'][graph_id] = copy.deepcopy(G) 
+            # tables[n_qubits]['graph_id2graph'][graph_id] = copy.deepcopy(G)
             # tables[n_qubits]['graph_id2pynautycert'][graph_id] = cert
             # tables[n_qubits]['pynautycert2graph_id'][cert] = graph_id
             # tables[n_qubits]['pynautycert2graph'][cert] = copy.deepcopy(G)
             tables[cert] = graph_id
-    
+
     # assert(len(tables[n_qubits]['graph_id2pynautycert']) == n_graphs[n_qubits])
     # assert(len(tables[n_qubits]['graph_id2graph']) == n_graphs[n_qubits])
     # assert(len(tables[n_qubits]['pynautycert2graph_id']) == n_graphs[n_qubits])
