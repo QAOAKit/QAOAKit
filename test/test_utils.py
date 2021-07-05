@@ -87,4 +87,22 @@ def test_qiskit_qaoa_circuit():
             sv2 = Statevector(backend.run(qc2).result().get_statevector())
             assert(sv1.equiv(sv2))
 
-
+def test_weighted_qaoa():
+    G = nx.petersen_graph()
+    np.random.seed(42)
+    for (u,v) in G.edges():
+        G[u][v]["weight"] = np.random.uniform(low=1, high=5)
+    assert(nx.is_weighted(G))
+    backend = Aer.get_backend('statevector_simulator')
+    p=3
+    angles = {'beta' : np.random.uniform(low=0, high=np.pi/2, size=3),
+              'gamma': np.random.uniform(low=0, high=np.pi, size=3)}
+    angles1 = angles_to_qiskit_format(angles)
+    C, _ = get_operator(nx.adjacency_matrix(G))
+    vf = QAOAVarForm(C.to_opflow(), p)
+    qc1 = vf.construct_circuit(angles1)
+    sv1 = Statevector(backend.run(qc1).result().get_statevector())
+    angles2 = angles_to_qaoa_format(angles)
+    qc2 = get_maxcut_qaoa_circuit(G, angles2['beta'], angles2['gamma'])
+    sv2 = Statevector(backend.run(qc2).result().get_statevector())
+    assert(sv1.equiv(sv2))

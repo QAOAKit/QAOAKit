@@ -211,7 +211,10 @@ def maxcut_obj(x,G):
     cut = 0
     for e in G.edges():
         if x[e[0]] != x[e[1]]:
-            cut += 1
+            if nx.is_weighted(G):
+                cut += G[e[0]][e[1]]["weight"]
+            else:
+                cut += 1
     return cut
 
 
