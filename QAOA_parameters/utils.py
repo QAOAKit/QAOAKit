@@ -142,6 +142,54 @@ def load_results_file_into_dataframe(n_qubits,p):
     return df
 
 
+def load_weighted_results_into_dataframe(p):
+    """Loads all result files from ../data/weighted_angle_dat/{p}
+    The column names and conventions are described in ../data/weighted_angle_dat/Readme.txt
+    One column is added:
+    p_max : maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+    """
+    colnames=['graph_id','weight_id','C_{true opt}','C_init','C_opt','pr(max)','p']
+    for i in range(p):
+        colnames.append(f"beta_{i}/pi")
+    for i in range(p):
+        colnames.append(f"gamma_{i}/pi")
+    colnames.append('mean(weight)')
+    colnames.append('std(weight)')
+    folder_path = Path(utils_folder, f"../data/weighted_angle_dat/p={p}/")
+    dfs = []
+    for fname in folder_path.glob("QAOA_dat_weighted_*"):
+        dfs.append(pd.read_csv(fname, delim_whitespace=True, names=colnames, header=None))
+    df = pd.concat(dfs)
+    df['p_max'] = p # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+    df['beta'] = df.apply(lambda row: [row[f"beta_{i}/pi"] for i in range(p)], axis=1)
+    df['gamma'] = df.apply(lambda row: [row[f"gamma_{i}/pi"] for i in range(p)], axis=1)
+    df['theta'] = df.apply(lambda row: row['gamma'] + row['beta'], axis=1)
+    return df
+
+
+def load_weights_into_dataframe(p):
+    """Loads all weight files from ../data/weighted_angle_dat/{p}
+    the first column is the graph number
+    The next E columns are the weights of the E edges.
+    Other columns beyond E+1 are meaningless
+    These weights were drawn uniformly at random from 1,2
+    returns pandas.DataFrame with columns
+       -'weight_id' (int)
+       -'graph_id' (int)
+       -'weights' (list of floating point weights)
+    """
+    folder_path = Path(utils_folder, f"../data/weighted_angle_dat/p={p}/")
+    lines = []
+
+    for fname in folder_path.glob("weights_*"):
+        with open(fname, 'r') as f:
+            for line_num, line in enumerate(f.readlines()):
+                line = line.strip().split()
+                line_d = {'weight_id':line_num+1, 'graph_id':int(line[0]), 'weights':[float(x) for x in line[1:]]}
+                lines.append(line_d)
+    return pd.DataFrame(lines, columns=lines[0].keys())
+
+
 #############################
 # QAOA utils
 ############################
