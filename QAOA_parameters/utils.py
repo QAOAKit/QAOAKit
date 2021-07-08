@@ -27,6 +27,10 @@ class LookupTableHandler:
     def __init__(self):
         self.graph2angles = None
         self.graph2pynauty = None
+        # dictionary with mapping from nqubits to dictionary containing
+        # 'graph_id2graph', 'graph_id2pynautycert', 'pynautycert2graph_id', 'pynautycert2graph' tables 
+        # example: large_graph_table[5]['graph_id2graph']
+        self.large_graph_table = None
         self.full_qaoa_dataset_table = None
 
     def get_graph2angles(self):
@@ -38,6 +42,13 @@ class LookupTableHandler:
         if self.graph2pynauty is None:
             self.graph2pynauty = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2pynauty.p"),"rb"))
         return self.graph2pynauty
+
+    def get_large_graph_table(self, nqubits):
+        if self.large_graph_table is None:
+            self.large_graph_table = {}
+        if nqubits not in self.large_graph_table:
+            self.large_graph_table[nqubits] = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2pynauty_large_{nqubits}.p"), "rb"))
+        return self.large_graph_table[nqubits]
 
     def get_full_qaoa_dataset_table(self):
         if self.full_qaoa_dataset_table is None:
@@ -51,15 +62,26 @@ def get_adjacency_dict(G):
     G must be a networkx graph
     Return format: { n : [n1,n2,...], ... }
     where [n1,n2,...] is a list of neighbors of n
+    ignores all attributes
     """
     adjacency_dict = {}
     for n, neigh_dict in G.adjacency():
         neigh_list = []
         for neigh, attr_dict in neigh_dict.items():
-            assert(len(attr_dict) == 0)
             neigh_list.append(neigh)
         adjacency_dict[n] = neigh_list
     return adjacency_dict
+
+
+def isomorphic(G1,G2):
+    """Tests if two unweighted graphs are isomorphic using pynauty
+    Ignores all attributes
+    """
+    g1 = pynauty.Graph(number_of_vertices=G1.number_of_nodes(), directed=nx.is_directed(G1),
+                adjacency_dict = get_adjacency_dict(G1))
+    g2 = pynauty.Graph(number_of_vertices=G2.number_of_nodes(), directed=nx.is_directed(G2),
+                adjacency_dict = get_adjacency_dict(G2))
+    return pynauty.isomorphic(g1,g2)
 
 
 def get_graph_id(G):
@@ -70,6 +92,11 @@ def get_graph_id(G):
     cert = pynauty.certificate(g)
 
     return graph2pynauty[cert]
+
+
+def get_graph_from_id(graph_id, nqubits):
+    graph_id2graph = lookup_table_handler.get_large_graph_table(nqubits)['graph_id2graph']
+    return copy.deepcopy(graph_id2graph[graph_id])
 
 
 def opt_angles_for_graph(G, p):
@@ -142,8 +169,23 @@ def load_results_file_into_dataframe(n_qubits,p):
     return df
 
 
-def load_weighted_results_into_dataframe(p):
+def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
+    """Retrieves a graph from graph_id and nqubits and assigns weights 
+    from df_weights
+    """
+    weights = list(df_weights[(df_weights['graph_id'] == graph_id) \
+                 & (df_weights['weight_id'] == weight_id)]['weights'])
+    assert(len(weights) == 1)
+    weights = weights[0]
+    G = get_graph_from_id(graph_id, nqubits)
+    for u, v, attr_dict in G.edges(data=True):
+        G[u][v]['weight'] = weights[attr_dict['edge_id']]
+    return copy.deepcopy(G)
+
+
+def load_weighted_results_into_dataframe(p, nqubits, df_weights):
     """Loads all result files from ../data/weighted_angle_dat/{p}
+    df_weights is a dataframe mapping graph_id and weight_id to list of weights
     The column names and conventions are described in ../data/weighted_angle_dat/Readme.txt
     One column is added:
     p_max : maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
@@ -164,6 +206,22 @@ def load_weighted_results_into_dataframe(p):
     df['beta'] = df.apply(lambda row: [row[f"beta_{i}/pi"] for i in range(p)], axis=1)
     df['gamma'] = df.apply(lambda row: [row[f"gamma_{i}/pi"] for i in range(p)], axis=1)
     df['theta'] = df.apply(lambda row: row['gamma'] + row['beta'], axis=1)
+    df['G'] = df.apply(lambda row: get_graph_and_assign_weights(row['graph_id'], row['weight_id'], nqubits, df_weights), axis=1)
+    assert(np.all(
+        np.isclose(
+            df.apply(lambda row: np.mean([x[2]['weight'] for x in row['G'].edges(data=True)]), axis=1),
+            df['mean(weight)'],
+            atol=1e-07
+        ) | np.isnan(df['std(weight)'])
+    ))
+    
+    assert(np.all(
+        np.isclose(
+            df.apply(lambda row: np.std([x[2]['weight'] for x in row['G'].edges(data=True)]), axis=1),
+            df['std(weight)'],
+            atol=1e-07
+        ) | np.isnan(df['std(weight)'])
+    ))
     return df
 
 

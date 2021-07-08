@@ -9,8 +9,8 @@ from qiskit.optimization.applications.ising.max_cut import get_operator
 from qiskit.aqua.algorithms.minimum_eigen_solvers.qaoa.var_form import QAOAVarForm
 from qiskit.quantum_info import Statevector
 
-from QAOA_parameters import opt_angles_for_graph, get_graph_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
-from QAOA_parameters.utils import obj_from_statevector, maxcut_obj
+from QAOA_parameters import opt_angles_for_graph, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
+from QAOA_parameters.utils import obj_from_statevector, maxcut_obj, isomorphic, load_weights_into_dataframe, load_weighted_results_into_dataframe
 from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
 
 def test_retrieval():
@@ -21,6 +21,14 @@ def test_retrieval():
             assert(len(angles['beta']) == p)
             assert(len(angles['gamma']) == p)
             assert(isinstance(get_full_qaoa_dataset_table_row(G,p)[['C_opt','graph_id','C_{true opt}']], pd.Series))
+
+def test_tables_consistency():
+    p = 1
+    G1 = nx.complete_graph(5)
+    row = get_full_qaoa_dataset_table_row(G1,p)
+    G2 = get_graph_from_id(row['graph_id'], 5)
+    assert(isomorphic(G1,G2))
+
 
 def test_angle_conversion():
     full_qaoa_dataset_table = get_full_qaoa_dataset_table()
@@ -106,3 +114,21 @@ def test_weighted_qaoa():
     qc2 = get_maxcut_qaoa_circuit(G, angles2['beta'], angles2['gamma'])
     sv2 = Statevector(backend.run(qc2).result().get_statevector())
     assert(sv1.equiv(sv2))
+
+def test_load_weighted_results():
+    p = 2
+    n = 5
+    
+    df_weights = load_weights_into_dataframe(p)
+    df = load_weighted_results_into_dataframe(p, n, df_weights)
+    assert(np.all(
+        np.isclose(
+            df.head(100).apply(
+                lambda row: qaoa_maxcut_energy(row['G'], beta_to_qaoa_format(row['beta']), gamma_to_qaoa_format(row['gamma'])),
+                axis=1
+            ),
+            df.head(100)['C_opt']
+        )
+    ))
+
+
