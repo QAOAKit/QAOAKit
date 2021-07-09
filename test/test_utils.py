@@ -4,6 +4,7 @@ import pandas as pd
 from qiskit import execute, Aer
 from functools import partial
 import pickle
+from pathlib import Path
 
 from qiskit.optimization.applications.ising.max_cut import get_operator
 from qiskit.aqua.algorithms.minimum_eigen_solvers.qaoa.var_form import QAOAVarForm
@@ -12,6 +13,8 @@ from qiskit.quantum_info import Statevector
 from QAOA_parameters import opt_angles_for_graph, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
 from QAOA_parameters.utils import obj_from_statevector, maxcut_obj, isomorphic, load_weights_into_dataframe, load_weighted_results_into_dataframe
 from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
+
+test_utils_folder = Path(__file__).parent
 
 def test_retrieval():
     for n in range(3,10):
@@ -119,8 +122,9 @@ def test_load_weighted_results():
     p = 2
     n = 5
     
-    df_weights = load_weights_into_dataframe(p)
-    df = load_weighted_results_into_dataframe(p, n, df_weights)
+    folder_path = Path(test_utils_folder, f"../data/weighted_angle_dat/p={p}/")
+    df_weights = load_weights_into_dataframe(folder_path)
+    df = load_weighted_results_into_dataframe(folder_path, p, n, df_weights)
     assert(np.all(
         np.isclose(
             df.head(100).apply(

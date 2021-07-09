@@ -183,7 +183,7 @@ def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
     return copy.deepcopy(G)
 
 
-def load_weighted_results_into_dataframe(p, nqubits, df_weights):
+def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
     """Loads all result files from ../data/weighted_angle_dat/{p}
     df_weights is a dataframe mapping graph_id and weight_id to list of weights
     The column names and conventions are described in ../data/weighted_angle_dat/Readme.txt
@@ -197,7 +197,6 @@ def load_weighted_results_into_dataframe(p, nqubits, df_weights):
         colnames.append(f"gamma_{i}/pi")
     colnames.append('mean(weight)')
     colnames.append('std(weight)')
-    folder_path = Path(utils_folder, f"../data/weighted_angle_dat/p={p}/")
     dfs = []
     for fname in folder_path.glob("QAOA_dat_weighted_*"):
         dfs.append(pd.read_csv(fname, delim_whitespace=True, names=colnames, header=None))
@@ -225,8 +224,8 @@ def load_weighted_results_into_dataframe(p, nqubits, df_weights):
     return df
 
 
-def load_weights_into_dataframe(p):
-    """Loads all weight files from ../data/weighted_angle_dat/{p}
+def load_weights_into_dataframe(folder_path):
+    """Loads all weight files from the folder passed
     the first column is the graph number
     The next E columns are the weights of the E edges.
     Other columns beyond E+1 are meaningless
@@ -236,7 +235,6 @@ def load_weights_into_dataframe(p):
        -'graph_id' (int)
        -'weights' (list of floating point weights)
     """
-    folder_path = Path(utils_folder, f"../data/weighted_angle_dat/p={p}/")
     lines = []
 
     for fname in folder_path.glob("weights_*"):
