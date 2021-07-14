@@ -48,7 +48,7 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 
 ### TODO
 
-- [ ] Qtensor parameter conversion
+- [ ] Qtensor parameter conversion and QTensor example
 - [ ] Add angles from this recent paper: https://scirate.com/arxiv/2107.00677
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
 - [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
