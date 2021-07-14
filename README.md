@@ -49,6 +49,5 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 ### TODO
 
 - [ ] Qtensor parameter conversion
+- [ ] Add angles from this recent paper: https://scirate.com/arxiv/2107.00677
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
-- [ ] Continuous integration (eventually, if the goal is to make public)
-- [x] Add `pynauty-nice` to `setup.py` to ease installation (https://pypi.org/project/pynauty-nice/) or `pynauty` (https://github.com/michaelRadigan/pynauty-nice/issues/2, https://pypi.org/project/pynauty/). Maybe you need `pip install --no-binary pynauty pynauty`
