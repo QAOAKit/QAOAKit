@@ -51,3 +51,5 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 - [ ] Qtensor parameter conversion
 - [ ] Add angles from this recent paper: https://scirate.com/arxiv/2107.00677
 - [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
+- [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
+- [ ] Add optimal parameters for a few larger instances to showcase the power of transferability (add `examples` folder?)
