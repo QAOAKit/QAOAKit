@@ -1,5 +1,6 @@
 # QAOA circuit for MAXCUT
 
+import networkx as nx
 from qiskit import QuantumCircuit, Aer, execute
 from qiskit.compiler import transpile
 
@@ -12,7 +13,10 @@ def get_maxcut_cost_operator_circuit(G, gamma):
     N = G.number_of_nodes()
     qc = QuantumCircuit(N)
     for i, j in G.edges():
-        append_zz_term(qc, i, j, gamma)
+        if nx.is_weighted(G):
+            append_zz_term(qc, i, j, gamma*G[i][j]["weight"])
+        else:
+            append_zz_term(qc, i, j, gamma)
     return qc
 
 def append_x_term(qc, q1, beta):

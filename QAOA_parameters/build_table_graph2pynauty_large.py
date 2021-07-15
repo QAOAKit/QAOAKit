@@ -33,8 +33,8 @@ for n_qubits in range(3,10):
             line_with_id = f.readline(-1) #second line has graph number and order
             graph_id, graph_order = [int(x) for x in re.split(' |, |. |.\n', line_with_id) if x.isdigit()]
             assert(graph_order == n_qubits)
-            edges=[]
             G=nx.Graph()
+            edge_id = 0
             for n in range(n_qubits):
                 G.add_nodes_from([n])
             #third line is first row of upper triangle of adjacency matrix (without the diagonal element)
@@ -43,8 +43,8 @@ for n_qubits in range(3,10):
                 for m in range(n_qubits-1-n):
                     q_num=n+m+1
                     if adj_str[m]=='1':
-                        edges.append([n,q_num])
-                        G.add_edge(n,q_num)
+                        G.add_edge(n,q_num,edge_id=edge_id)
+                        edge_id += 1
             g = pynauty.Graph(number_of_vertices=G.number_of_nodes(), directed=nx.is_directed(G),
                         adjacency_dict = get_adjacency_dict(G))
             cert = pynauty.certificate(g)
