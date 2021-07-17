@@ -10,7 +10,7 @@ from qiskit.optimization.applications.ising.max_cut import get_operator
 from qiskit.aqua.algorithms.minimum_eigen_solvers.qaoa.var_form import QAOAVarForm
 from qiskit.quantum_info import Statevector
 
-from QAOA_parameters import opt_angles_for_graph, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
+from QAOA_parameters import opt_angles_for_graph, get_fixed_angles, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
 from QAOA_parameters.utils import obj_from_statevector, maxcut_obj, isomorphic, load_weights_into_dataframe, load_weighted_results_into_dataframe
 from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
 
@@ -24,6 +24,13 @@ def test_retrieval():
             assert(len(angles['beta']) == p)
             assert(len(angles['gamma']) == p)
             assert(isinstance(get_full_qaoa_dataset_table_row(G,p)[['C_opt','graph_id','C_{true opt}']], pd.Series))
+
+def test_fixed_angle_retrieval():
+    for d in range(3,5):
+        for p in range(1,4):
+            angles = get_fixed_angles(d,p)
+            assert(type(f) is list)
+            assert(len(angles == 2*p))
 
 def test_tables_consistency():
     p = 1

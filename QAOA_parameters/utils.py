@@ -7,6 +7,7 @@ import pandas as pd
 from pathlib import Path
 from functools import partial
 from qiskit import Aer
+import json
 
 from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
 
@@ -104,6 +105,9 @@ def opt_angles_for_graph(G, p):
     graph_id = get_graph_id(G)
     return copy.deepcopy(graph2angles[G.number_of_nodes()][p][graph_id])
 
+def get_fixed_angles(d, p):
+    df = get_fixed_angle_values()
+    return list(df[(df['d'] == int(d)) & (df['p'] == int(p))].angles)[0]
 
 def get_full_qaoa_dataset_table():
     return lookup_table_handler.get_full_qaoa_dataset_table()
@@ -242,6 +246,24 @@ def load_weights_into_dataframe(folder_path):
             for line_num, line in enumerate(f.readlines()):
                 line = line.strip().split()
                 line_d = {'weight_id':line_num+1, 'graph_id':int(line[0]), 'weights':[float(x) for x in line[1:]]}
+                lines.append(line_d)
+    return pd.DataFrame(lines, columns=lines[0].keys())
+
+
+def get_fixed_angle_values():
+    with open("data/fixed-angle-2021-07/angles_regular_graphs.json") as json_file:
+        data = json.load(json_file)
+
+    lines = []
+    for d in data.keys():
+        for p in data[d]:
+            if int(p) < 12: #remove bad value at p=12
+                line_d={
+                    'd': int(d),
+                    'p': int(p),
+                    'angles': [float(x) for x in data[d][p]['angles']],
+                    'AR': float(data[d][p]['AR'])
+                }
                 lines.append(line_d)
     return pd.DataFrame(lines, columns=lines[0].keys())
 
