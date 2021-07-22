@@ -54,3 +54,5 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 - [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
 - [ ] Add optimal parameters for a few larger instances to showcase the power of transferability (add `examples` folder?)
 - [ ] Libensemble example with multiprocessing that uses sampled points as initial guesses
+- [ ] Qiskit tests shoud compare with `QAOAAnsatz` (https://qiskit.org/documentation/stubs/qiskit.circuit.library.QAOAAnsatz.html#qiskit.circuit.library.QAOAAnsatz)
+- [ ] (Double-check that this is a good idea) More repo to Argonne-QIS organization
