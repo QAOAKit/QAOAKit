@@ -221,6 +221,17 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
             atol=1e-07
         ) | np.isnan(df['std(weight)'])
     ))
+
+    assert(np.all(
+        np.isclose(
+            df.head(100).apply(
+                lambda row: qaoa_maxcut_energy(row['G'], beta_to_qaoa_format(row['beta']), gamma_to_qaoa_format(row['gamma'])),
+                axis=1
+            ),
+            df.head(100)['C_opt']
+        )
+    ))
+
     return df
 
 
