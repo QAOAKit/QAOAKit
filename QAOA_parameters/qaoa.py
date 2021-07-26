@@ -44,4 +44,5 @@ def get_maxcut_qaoa_circuit(G, beta, gamma, transpile_to_basis=True):
         qc = qc.compose(get_mixer_operator_circuit(G,beta[i]))
     if transpile_to_basis:
         qc = transpile(qc, optimization_level=0,basis_gates=['u1', 'u2', 'u3', 'cx'])
+    qc.save_state()
     return qc

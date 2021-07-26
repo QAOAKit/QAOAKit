@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 import pandas as pd
-from qiskit import execute, Aer
+from qiskit.providers.aer import AerSimulator
 from functools import partial
 import pickle
 from pathlib import Path
@@ -46,7 +46,7 @@ def test_angle_conversion():
                 assert(np.allclose(angles['beta'], beta_to_qaoa_format(row['beta'])))
                 assert(np.allclose(angles['gamma'], gamma_to_qaoa_format(row['gamma'])))
                 qc = get_maxcut_qaoa_circuit(row['G'], angles['beta'], angles['gamma'])
-                backend = Aer.get_backend('statevector_simulator')
+                backend = AerSimulator(method="statevector")
                 res = backend.run(qc).result()
                 sv = res.get_statevector()
                 obj_val = obj_from_statevector(sv, obj)
@@ -73,7 +73,8 @@ def test_qiskit_angle_conversion():
             vf = QAOAVarForm(C.to_opflow(), p)
             angles = angles_to_qiskit_format(opt_angles_for_graph(row['G'], row['p_max']))
             qc = vf.construct_circuit(angles)
-            backend = Aer.get_backend('statevector_simulator')
+            qc.save_state()
+            backend = AerSimulator(method="statevector")
             sv = Statevector(backend.run(qc).result().get_statevector())
             obj_val = -(sv.expectation_value(C.to_opflow()) + offset)
             opt_cut = row['C_opt']
@@ -87,11 +88,12 @@ def test_qiskit_qaoa_circuit():
         df = df[(df['n'] == n_qubits) & (df['p_max'] == p)]
         for _, row in df.iterrows():
             G = row['G']
-            backend = Aer.get_backend('statevector_simulator')
+            backend = AerSimulator(method="statevector")
             C, _ = get_operator(nx.adjacency_matrix(G))
             vf = QAOAVarForm(C.to_opflow(), p)
             angles1 = angles_to_qiskit_format(opt_angles_for_graph(row['G'], row['p_max']))
             qc1 = vf.construct_circuit(angles1)
+            qc1.save_state()
             sv1 = Statevector(backend.run(qc1).result().get_statevector())
             angles2 = angles_to_qaoa_format(opt_angles_for_graph(row['G'], row['p_max']))
             qc2 = get_maxcut_qaoa_circuit(row['G'], angles2['beta'], angles2['gamma'])
@@ -104,7 +106,7 @@ def test_weighted_qaoa():
     for (u,v) in G.edges():
         G[u][v]["weight"] = np.random.uniform(low=1, high=5)
     assert(nx.is_weighted(G))
-    backend = Aer.get_backend('statevector_simulator')
+    backend = AerSimulator(method="statevector")
     p=3
     angles = {'beta' : np.random.uniform(low=0, high=np.pi/2, size=3),
               'gamma': np.random.uniform(low=0, high=np.pi, size=3)}
@@ -112,6 +114,7 @@ def test_weighted_qaoa():
     C, _ = get_operator(nx.adjacency_matrix(G))
     vf = QAOAVarForm(C.to_opflow(), p)
     qc1 = vf.construct_circuit(angles1)
+    qc1.save_state()
     sv1 = Statevector(backend.run(qc1).result().get_statevector())
     angles2 = angles_to_qaoa_format(angles)
     qc2 = get_maxcut_qaoa_circuit(G, angles2['beta'], angles2['gamma'])

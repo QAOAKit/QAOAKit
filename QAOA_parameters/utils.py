@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from functools import partial
-from qiskit import Aer
+from qiskit.providers.aer import AerSimulator
 
 from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
 
@@ -343,6 +343,6 @@ def qaoa_maxcut_energy(G, beta, gamma):
     """
     obj = partial(maxcut_obj, G=G)
     qc = get_maxcut_qaoa_circuit(G, beta, gamma)
-    backend = Aer.get_backend('statevector_simulator')
+    backend = AerSimulator(method="statevector")
     sv = backend.run(qc).result().get_statevector()
     return obj_from_statevector(sv, obj)
