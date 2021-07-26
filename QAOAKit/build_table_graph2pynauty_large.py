@@ -4,10 +4,33 @@ import copy
 import pynauty
 import pickle
 from pathlib import Path
+from io import BytesIO
+from urllib.request import urlopen
+from zipfile import ZipFile
+import shutil
 
 from utils import get_adjacency_dict
 
 build_table_graph2pynauty_folder = Path(__file__).parent
+
+if not Path("../data/qaoa-dataset-version1/").is_dir():
+    print("Loading data, this may take a while")
+    data_folder = Path(build_table_graph2pynauty_folder, '../data/')
+    zipurl = 'https://github.com/QAOAKit/data/zipball/master'
+    with urlopen(zipurl) as zipresp:
+        with ZipFile(BytesIO(zipresp.read())) as zfile:
+            zfile.extractall(data_folder)
+    # remove top folder
+    folder = list(Path('data/').glob('QAOAKit-data-*'))
+    assert(len(folder) == 1)
+    folder = folder[0]
+    for subfolder in folder.glob('*'):
+        if subfolder.stem == '.gitignore':
+            continue
+        subfolder = subfolder.absolute()
+        parent_dir = subfolder.parents[1]
+        subfolder.rename(parent_dir / subfolder.name)
+    shutil.rmtree(folder)
 
 n_graphs={}
 
