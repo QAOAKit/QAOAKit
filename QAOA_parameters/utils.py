@@ -100,9 +100,13 @@ def get_graph_from_id(graph_id, nqubits):
 
 
 def opt_angles_for_graph(G, p):
-    graph2angles = lookup_table_handler.get_graph2angles()
-    graph_id = get_graph_id(G)
-    return copy.deepcopy(graph2angles[G.number_of_nodes()][p][graph_id])
+    if (G.number_of_nodes() <= 9) and (p <= 3):
+        graph2angles = lookup_table_handler.get_graph2angles()
+        graph_id = get_graph_id(G)
+        return copy.deepcopy(graph2angles[G.number_of_nodes()][p][graph_id])
+    else:
+        # TODO: support for other datasets should be added here
+        raise NotImplementedError("Should return angles from fixed angle conjecture paper; TBD")
 
 
 def get_full_qaoa_dataset_table():
