@@ -8,7 +8,7 @@ from pathlib import Path
 from functools import partial
 from qiskit.providers.aer import AerSimulator
 
-from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit
+from QAOAKit.qaoa import get_maxcut_qaoa_circuit
 
 utils_folder = Path(__file__).parent
 

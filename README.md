@@ -4,10 +4,10 @@
 
 ```python
 import networkx as nx
-from qiskit import Aer
-from QAOA_parameters import opt_angles_for_graph, angles_to_qaoa_format 
-from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit 
-
+from qiskit.providers.aer import AerSimulator
+from QAOAKit import opt_angles_for_graph, angles_to_qaoa_format
+from QAOAKit.qaoa import get_maxcut_qaoa_circuit
+                                                                                                                                                                                     
 # build graph
 G = nx.star_graph(5)
 # grab optimal angles
@@ -17,7 +17,7 @@ angles = angles_to_qaoa_format(opt_angles_for_graph(G,p))
 qc = get_maxcut_qaoa_circuit(G, angles['beta'], angles['gamma'])
 qc.measure_all()
 # run circuit
-backend = Aer.get_backend('qasm_simulator')
+backend = AerSimulator()
 print(backend.run(qc).result().get_counts())
 ```
 
@@ -35,11 +35,11 @@ conda activate qaoa
 Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
 
 ```
-git clone https://github.com/rsln-s/QAOA_parameters.git
-cd QAOA_parameters
+git clone https://github.com/rsln-s/QAOAKit.git
+cd QAOAKit 
 pip install -e .
-python QAOA_parameters/build_table_graph2pynauty_large.py
-python QAOA_parameters/build_full_qaoa_dataset_table.py
+python QAOAKit/build_table_graph2pynauty_large.py
+python QAOAKit/build_full_qaoa_dataset_table.py
 pytest
 ```
 
