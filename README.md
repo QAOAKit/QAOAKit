@@ -35,7 +35,7 @@ conda activate qaoa
 Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
 
 ```
-git clone https://github.com/rsln-s/QAOAKit.git
+git clone https://github.com/QAOAKit/QAOAKit.git
 cd QAOAKit 
 pip install -e .
 python QAOAKit/build_table_graph2pynauty_large.py
