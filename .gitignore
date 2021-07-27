@@ -141,4 +141,7 @@ cython_debug/
 data/lookup_tables/graph2pynauty_large*.p
 data/lookup_tables/full_qaoa_dataset_table.p
 
+# all data files
+data/
+
 .DS_Store
