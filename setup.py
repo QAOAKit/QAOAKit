@@ -8,7 +8,7 @@ setup(
     author_email='ruslan@shaydul.in',
     python_requires='>=3, <4',
     packages=['QAOAKit'],
-    install_requires=['qiskit>=0.28.0', 'pynauty==1.0.0',
+    install_requires=['qiskit>=0.28.0', 'pynauty==1.0.0', 'qiskit-optimization',
                       'pandas', 'networkx', 'numpy', 'pytest'],
     zip_safe=True
 )
