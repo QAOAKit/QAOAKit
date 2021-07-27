@@ -150,7 +150,7 @@ def angles_to_qiskit_format(angles):
     """ Converts from format in graph2angles
     into the format used by QAOAAnsatz
     """
-    return list(np.concatenate([[-np.pi*g, np.pi*b] for g, b in zip(angles['gamma'], angles['beta'])]))
+    return np.concatenate([[-np.pi*g, np.pi*b] for g, b in zip(angles['gamma'], angles['beta'])])
 
 
 def load_results_file_into_dataframe(n_qubits,p):
