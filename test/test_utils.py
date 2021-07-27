@@ -126,7 +126,7 @@ def test_weighted_qaoa():
 def test_load_weighted_results():
     p = 2
     n = 5
-    
+
     folder_path = Path(test_utils_folder, f"../data/weighted_angle_dat/p={p}/")
     df_weights = load_weights_into_dataframe(folder_path)
     df = load_weighted_results_into_dataframe(folder_path, p, n, df_weights)

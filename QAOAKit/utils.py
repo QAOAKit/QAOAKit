@@ -28,7 +28,7 @@ class LookupTableHandler:
         self.graph2angles = None
         self.graph2pynauty = None
         # dictionary with mapping from nqubits to dictionary containing
-        # 'graph_id2graph', 'graph_id2pynautycert', 'pynautycert2graph_id', 'pynautycert2graph' tables 
+        # 'graph_id2graph', 'graph_id2pynautycert', 'pynautycert2graph_id', 'pynautycert2graph' tables
         # example: large_graph_table[5]['graph_id2graph']
         self.large_graph_table = None
         self.full_qaoa_dataset_table = None
@@ -52,7 +52,7 @@ class LookupTableHandler:
 
     def get_full_qaoa_dataset_table(self):
         if self.full_qaoa_dataset_table is None:
-            self.full_qaoa_dataset_table = pd.read_pickle(Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")).set_index(['pynauty_cert','p_max']) 
+            self.full_qaoa_dataset_table = pd.read_pickle(Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")).set_index(['pynauty_cert','p_max'])
         return self.full_qaoa_dataset_table
 
 lookup_table_handler = LookupTableHandler()
@@ -171,7 +171,7 @@ def load_results_file_into_dataframe(n_qubits,p):
 
 
 def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
-    """Retrieves a graph from graph_id and nqubits and assigns weights 
+    """Retrieves a graph from graph_id and nqubits and assigns weights
     from df_weights
     """
     weights = list(df_weights[(df_weights['graph_id'] == graph_id) \
@@ -214,7 +214,7 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
             atol=1e-07
         ) | np.isnan(df['std(weight)'])
     ))
-    
+
     assert(np.all(
         np.isclose(
             df.apply(lambda row: np.std([x[2]['weight'] for x in row['G'].edges(data=True)]), axis=1),
@@ -304,7 +304,7 @@ def state_to_ampl_counts(vec, eps=1e-15):
 
 def obj_from_statevector(sv, obj_f, precomputed=None):
     """Compute objective from Qiskit statevector
-    For large number of qubits, this is slow. 
+    For large number of qubits, this is slow.
     To speed up for larger qubits, pass a vector of precomputed energies
     for QAOA, precomputed should be the same as the diagonal of the cost Hamiltonian
     """
