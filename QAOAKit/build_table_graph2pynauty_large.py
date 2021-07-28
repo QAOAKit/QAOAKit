@@ -9,11 +9,11 @@ from urllib.request import urlopen
 from zipfile import ZipFile
 import shutil
 
-from utils import get_adjacency_dict
+from .utils import get_adjacency_dict
 
 build_table_graph2pynauty_folder = Path(__file__).parent
 
-if not Path("../data/qaoa-dataset-version1/").is_dir():
+if not Path(build_table_graph2pynauty_folder, "../data/qaoa-dataset-version1/").is_dir():
     print("Loading data, this may take a while")
     data_folder = Path(build_table_graph2pynauty_folder, '../data/')
     zipurl = 'https://github.com/QAOAKit/data/zipball/master'
@@ -21,7 +21,7 @@ if not Path("../data/qaoa-dataset-version1/").is_dir():
         with ZipFile(BytesIO(zipresp.read())) as zfile:
             zfile.extractall(data_folder)
     # remove top folder
-    folder = list(Path('data/').glob('QAOAKit-data-*'))
+    folder = list(Path(build_table_graph2pynauty_folder, '../data/').glob('QAOAKit-data-*'))
     assert(len(folder) == 1)
     folder = folder[0]
     for subfolder in folder.glob('*'):

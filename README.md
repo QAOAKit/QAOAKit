@@ -57,8 +57,8 @@ Note that current implementation requires significant amounts of RAM (~5GB) as i
 git clone https://github.com/QAOAKit/QAOAKit.git
 cd QAOAKit 
 pip install -e .
-python QAOAKit/build_table_graph2pynauty_large.py
-python QAOAKit/build_full_qaoa_dataset_table.py
+python -m QAOAKit.build_table_graph2pynauty_large
+python -m QAOAKit.build_full_qaoa_dataset_table
 pytest
 ```
 
