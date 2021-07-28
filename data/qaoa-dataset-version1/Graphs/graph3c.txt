@@ -1,8 +1,0 @@
-
-Graph 1, order 3.
-01
-1
-
-Graph 2, order 3.
-11
-1

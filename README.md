@@ -4,10 +4,10 @@
 
 ```python
 import networkx as nx
-from qiskit import Aer
-from QAOA_parameters import opt_angles_for_graph, angles_to_qaoa_format 
-from QAOA_parameters.qaoa import get_maxcut_qaoa_circuit 
-
+from qiskit.providers.aer import AerSimulator
+from QAOAKit import opt_angles_for_graph, angles_to_qaoa_format
+from QAOAKit.qaoa import get_maxcut_qaoa_circuit
+                                                                                                                                                                                     
 # build graph
 G = nx.star_graph(5)
 # grab optimal angles
@@ -17,7 +17,7 @@ angles = angles_to_qaoa_format(opt_angles_for_graph(G,p))
 qc = get_maxcut_qaoa_circuit(G, angles['beta'], angles['gamma'])
 qc.measure_all()
 # run circuit
-backend = Aer.get_backend('qasm_simulator')
+backend = AerSimulator()
 print(backend.run(qc).result().get_counts())
 ```
 
@@ -35,11 +35,11 @@ conda activate qaoa
 Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
 
 ```
-git clone https://github.com/rsln-s/QAOA_parameters.git
-cd QAOA_parameters
+git clone https://github.com/QAOAKit/QAOAKit.git
+cd QAOAKit 
 pip install -e .
-python QAOA_parameters/build_table_graph2pynauty_large.py
-python QAOA_parameters/build_full_qaoa_dataset_table.py
+python QAOAKit/build_table_graph2pynauty_large.py
+python QAOAKit/build_full_qaoa_dataset_table.py
 pytest
 ```
 
@@ -50,9 +50,6 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 
 - [ ] Qtensor parameter conversion and QTensor example
 - [ ] Add angles from this recent paper: https://scirate.com/arxiv/2107.00677
-- [ ] Update `setup.py` (what is `zip_safe`? what else should be there?)
 - [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
 - [ ] Add optimal parameters for a few larger instances to showcase the power of transferability (add `examples` folder?)
 - [ ] Libensemble example with multiprocessing that uses sampled points as initial guesses
-- [ ] Qiskit tests shoud compare with `QAOAAnsatz` (https://qiskit.org/documentation/stubs/qiskit.circuit.library.QAOAAnsatz.html#qiskit.circuit.library.QAOAAnsatz)
-- [ ] (Double-check that this is a good idea) More repo to Argonne-QIS organization
