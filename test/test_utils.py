@@ -1,10 +1,10 @@
-import pytest
 import networkx as nx
 import numpy as np
 import pandas as pd
 from qiskit.providers.aer import AerSimulator
 from functools import partial
 from pathlib import Path
+import qtensor
 
 from qiskit.quantum_info import Statevector
 
@@ -129,7 +129,6 @@ def test_load_weighted_results():
 
 
 def test_qtensor_angle_conversion():
-    qtensor = pytest.importorskip('qtensor')
     full_qaoa_dataset_table = get_full_qaoa_dataset_table()
     for n_qubits in [3,4]:
         p = 3

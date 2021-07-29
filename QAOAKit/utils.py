@@ -156,8 +156,7 @@ def angles_to_qtensor_format(angles):
     """ Converts from format in graph2angles
     into the format used by QTensor
     """
-    raise NotImplementedError('Conversion to QTensor is missing!')
-    return angles
+    return {'gamma': [-g/2 for g in angles['gamma']], 'beta': angles['beta']}
 
 
 def load_results_file_into_dataframe(n_qubits,p):
