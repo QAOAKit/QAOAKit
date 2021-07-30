@@ -29,8 +29,8 @@ def test_fixed_angle_retrieval():
     for d in range(3,5):
         for p in range(1,4):
             angles = get_fixed_angles(d,p)
-            assert(type(f) is list)
-            assert(len(angles == 2*p))
+            assert(type(angles) is list)
+            assert(len(angles) == 2*p)
 
 def test_tables_consistency():
     p = 1
