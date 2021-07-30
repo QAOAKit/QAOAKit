@@ -1,3 +1,0 @@
-This dataset comes from https://raw.githubusercontent.com/danlkv/fixed-angle-QAOA/master/angles_regular_graphs.json
-
-This was retrieved on 2021-07-17.
