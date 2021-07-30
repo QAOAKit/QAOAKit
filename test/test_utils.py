@@ -4,10 +4,11 @@ import pandas as pd
 from qiskit.providers.aer import AerSimulator
 from functools import partial
 from pathlib import Path
+import pytest
 
 from qiskit.quantum_info import Statevector
 
-from QAOAKit import opt_angles_for_graph, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
+from QAOAKit import opt_angles_for_graph, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, angles_to_qtensor_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
 from QAOAKit.utils import obj_from_statevector, maxcut_obj, isomorphic, load_weights_into_dataframe, load_weighted_results_into_dataframe
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from qiskit_optimization import QuadraticProgram
@@ -126,4 +127,18 @@ def test_load_weighted_results():
         )
     ))
 
+
+def test_qtensor_angle_conversion():
+    qtensor = pytest.importorskip('qtensor')
+    full_qaoa_dataset_table = get_full_qaoa_dataset_table()
+    for n_qubits in [3,4]:
+        p = 3
+        df = full_qaoa_dataset_table.reset_index()
+        df = df[(df['n'] == n_qubits) & (df['p_max'] == p)]
+        for _, row in df.iterrows():
+            angles = angles_to_qtensor_format(opt_angles_for_graph(row['G'], row['p_max']))
+            G = row['G']
+            obj_val = qtensor.QAOA_energy(G, angles['gamma'], angles['beta'])
+            opt_cut = row['C_opt']
+            assert(np.isclose(opt_cut, obj_val))
 

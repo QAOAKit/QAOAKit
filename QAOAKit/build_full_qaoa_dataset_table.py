@@ -2,7 +2,7 @@ import pandas as pd
 import pickle
 from pathlib import Path
 
-from utils import load_results_file_into_dataframe
+from .utils import load_results_file_into_dataframe
 
 build_full_qaoa_dataset_table_folder = Path(__file__).parent
 

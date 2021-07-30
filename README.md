@@ -23,6 +23,13 @@ print(backend.run(qc).result().get_counts())
 
 Almost all counts you get should correspond to one of the two optimal MaxCut solutions for star graph: `000001` or `111110`.
 
+### Advanced usage
+
+More advanced examples are available in `examples` folder:
+
+- Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): `examples/qtensor_get_energy.py`
+
+
 ### Installation
 
 Optional: create an Anaconda environment
@@ -38,8 +45,8 @@ Note that current implementation requires significant amounts of RAM (~5GB) as i
 git clone https://github.com/QAOAKit/QAOAKit.git
 cd QAOAKit 
 pip install -e .
-python QAOAKit/build_table_graph2pynauty_large.py
-python QAOAKit/build_full_qaoa_dataset_table.py
+python -m QAOAKit.build_table_graph2pynauty_large
+python -m QAOAKit.build_full_qaoa_dataset_table
 pytest
 ```
 
@@ -48,7 +55,6 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 
 ### TODO
 
-- [ ] Qtensor parameter conversion and QTensor example
 - [ ] Add angles from this recent paper: https://scirate.com/arxiv/2107.00677
 - [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
 - [ ] Add optimal parameters for a few larger instances to showcase the power of transferability (add `examples` folder?)
