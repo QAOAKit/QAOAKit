@@ -23,6 +23,8 @@ print(backend.run(qc).result().get_counts())
 
 Almost all counts you get should correspond to one of the two optimal MaxCut solutions for star graph: `000001` or `111110`.
 
+### Advanced usage
+
 More advanced examples are available in `examples` folder:
 
 - Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): `examples/qtensor_get_energy.py`

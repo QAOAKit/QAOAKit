@@ -1,3 +1,8 @@
+"""
+QTensor is a fast tensor network simulator
+See more: https://github.com/danlkv/QTensor
+"""
+
 import networkx as nx
 from QAOAKit import opt_angles_for_graph, angles_to_qtensor_format
 from qtensor import QAOA_energy
