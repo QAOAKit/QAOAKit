@@ -156,6 +156,16 @@ def angles_to_qiskit_format(angles):
     """
     return np.concatenate([[-np.pi*g, np.pi*b] for g, b in zip(angles['gamma'], angles['beta'])])
 
+def angles_from_qiskit_format(angles):
+    """ Converts from the format used by QAOAAnsatz
+    into the format in graph2angles
+    """
+    res = {}
+    assert(len(angles) % 2 == 0)
+    res['gamma'] = list(x / (-np.pi) for x in angles[::2])
+    res['beta'] = list(x / np.pi for x in angles[1::2])
+    return res
+
 def angles_to_qtensor_format(angles):
     """ Converts from format in graph2angles
     into the format used by QTensor

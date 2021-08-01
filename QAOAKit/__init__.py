@@ -4,6 +4,7 @@ from .utils import get_graph_id, \
         angles_to_qaoa_format, \
         angles_to_qiskit_format, \
         angles_to_qtensor_format, \
+        angles_from_qiskit_format, \
         beta_to_qaoa_format, \
         gamma_to_qaoa_format, \
         get_fixed_angles, \

@@ -4,11 +4,12 @@ import pandas as pd
 from qiskit.providers.aer import AerSimulator
 from functools import partial
 from pathlib import Path
+import copy
 import pytest
 
 from qiskit.quantum_info import Statevector
 
-from QAOAKit import opt_angles_for_graph, get_fixed_angles, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, angles_to_qtensor_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy
+from QAOAKit import opt_angles_for_graph, get_fixed_angles, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, angles_to_qtensor_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy, angles_from_qiskit_format
 from QAOAKit.utils import obj_from_statevector, maxcut_obj, isomorphic, load_weights_into_dataframe, load_weighted_results_into_dataframe
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from qiskit_optimization import QuadraticProgram
@@ -148,4 +149,12 @@ def test_qtensor_angle_conversion():
             obj_val = qtensor.QAOA_energy(G, angles['gamma'], angles['beta'])
             opt_cut = row['C_opt']
             assert(np.isclose(opt_cut, obj_val))
+
+
+def test_from_qiskit_conversion():
+    angles = {'beta' : np.random.uniform(low=0, high=np.pi/2, size=3),
+              'gamma': np.random.uniform(low=0, high=np.pi, size=3)}
+    angles2 = angles_from_qiskit_format(angles_to_qiskit_format(copy.deepcopy(angles)))
+    assert(np.all(np.isclose(angles['beta'], angles2['beta'])))
+    assert(np.all(np.isclose(angles['gamma'], angles2['gamma'])))
 
