@@ -1,6 +1,8 @@
 name: Python Package using Conda
 
-on: [push]
+on:
+  push:
+    branches: [ 'github-actions' ]
 
 jobs:
   build-linux:
