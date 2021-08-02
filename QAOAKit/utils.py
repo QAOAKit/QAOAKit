@@ -188,11 +188,11 @@ def wurtz_angles_to_qiskit_format(angles):
     '''
     import warnings; warnings.warn("wurtz_angles_to_qiskit_format is not covered by tests yet")
     p = len(angles['gamma'])
-    
+
     angles_qiskit = np.zeros(2*p)
     angles_qiskit[:p] = -angles['beta']
     angles_qiskit[p:] = -angles['gamma']
-    
+
     return angles_qiskit
 
 def load_results_file_into_dataframe(n_qubits,p):
@@ -301,7 +301,7 @@ def load_weights_into_dataframe(folder_path):
 
 
 def get_fixed_angle_values():
-    with open("data/fixed-angle-2021-07/angles_regular_graphs.json") as json_file:
+    with open(Path(utils_folder, "../data/fixed-angle-2021-07/angles_regular_graphs.json")) as json_file:
         data = json.load(json_file)
 
     lines = []
