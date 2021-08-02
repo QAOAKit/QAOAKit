@@ -22,7 +22,11 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        conda env update --file environment.yml --name base
+        cd QAOAKit
+        pip install -e .
+        python -m QAOAKit.build_table_graph2pynauty_large
+        python -m QAOAKit.build_full_qaoa_dataset_table
+        pytest
     - name: Lint with flake8
       run: |
         conda install flake8
