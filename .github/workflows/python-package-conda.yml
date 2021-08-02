@@ -30,7 +30,7 @@ jobs:
         git clone --recurse-submodules https://github.com/DaniloZZZ/QTensor
         cd QTensor
         cd qtree && pip install .
-        pip install .
+        cd .. && pip install .
         cd
     - name: Load data
       run: |
