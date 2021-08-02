@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -e .
-        conda install qtensor
+        pip install qtensor
     - name: Load data
       run: |
         python -m QAOAKit.build_table_graph2pynauty_large
