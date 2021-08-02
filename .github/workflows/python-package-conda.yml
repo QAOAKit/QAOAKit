@@ -31,6 +31,7 @@ jobs:
         cd QTensor
         cd qtree && pip install .
         pip install .
+        cd
     - name: Load data
       run: |
         python -m QAOAKit.build_table_graph2pynauty_large
