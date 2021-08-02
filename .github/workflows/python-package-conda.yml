@@ -25,7 +25,12 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -e .
-        pip install qtensor
+    - name: qtensor
+      run: |
+        git clone --recurse-submodules https://github.com/DaniloZZZ/QTensor
+        cd QTensor
+        cd qtree && pip install .
+        pip install .
     - name: Load data
       run: |
         python -m QAOAKit.build_table_graph2pynauty_large
@@ -33,10 +38,6 @@ jobs:
     - name: test
       run: |
         pytest
-    - name: Lint with flake8
-      run: |
-        conda install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - uses: rickstaa/action-black@v1
+      with:
+        fail_on_error: false
