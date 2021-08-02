@@ -22,7 +22,6 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        cd QAOAKit
         pip install -e .
         python -m QAOAKit.build_table_graph2pynauty_large
         python -m QAOAKit.build_full_qaoa_dataset_table
