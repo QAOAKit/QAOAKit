@@ -12,6 +12,7 @@ from QAOAKit.qaoa import get_maxcut_qaoa_circuit
 
 utils_folder = Path(__file__).parent
 
+
 class LookupTableHandler:
     """Singleton handling all the tables
     constructed from the qaoa-dataset-version1
@@ -24,6 +25,7 @@ class LookupTableHandler:
         graph2pynauty (dict): maps from pynauty certificate to graph_id
         full_qaoa_dataset_table (pandas.DataFrame) : TBD
     """
+
     def __init__(self):
         self.graph2angles = None
         self.graph2pynauty = None
@@ -35,27 +37,43 @@ class LookupTableHandler:
 
     def get_graph2angles(self):
         if self.graph2angles is None:
-            self.graph2angles = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2angles.p"),"rb"))
+            self.graph2angles = pickle.load(
+                open(Path(utils_folder, f"../data/lookup_tables/graph2angles.p"), "rb")
+            )
         return self.graph2angles
 
     def get_graph2pynauty(self):
         if self.graph2pynauty is None:
-            self.graph2pynauty = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2pynauty.p"),"rb"))
+            self.graph2pynauty = pickle.load(
+                open(Path(utils_folder, f"../data/lookup_tables/graph2pynauty.p"), "rb")
+            )
         return self.graph2pynauty
 
     def get_large_graph_table(self, nqubits):
         if self.large_graph_table is None:
             self.large_graph_table = {}
         if nqubits not in self.large_graph_table:
-            self.large_graph_table[nqubits] = pickle.load(open(Path(utils_folder, f"../data/lookup_tables/graph2pynauty_large_{nqubits}.p"), "rb"))
+            self.large_graph_table[nqubits] = pickle.load(
+                open(
+                    Path(
+                        utils_folder,
+                        f"../data/lookup_tables/graph2pynauty_large_{nqubits}.p",
+                    ),
+                    "rb",
+                )
+            )
         return self.large_graph_table[nqubits]
 
     def get_full_qaoa_dataset_table(self):
         if self.full_qaoa_dataset_table is None:
-            self.full_qaoa_dataset_table = pd.read_pickle(Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")).set_index(['pynauty_cert','p_max'])
+            self.full_qaoa_dataset_table = pd.read_pickle(
+                Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")
+            ).set_index(["pynauty_cert", "p_max"])
         return self.full_qaoa_dataset_table
 
+
 lookup_table_handler = LookupTableHandler()
+
 
 def get_adjacency_dict(G):
     """Returns adjacency dictionary for G
@@ -73,29 +91,40 @@ def get_adjacency_dict(G):
     return adjacency_dict
 
 
-def isomorphic(G1,G2):
+def isomorphic(G1, G2):
     """Tests if two unweighted graphs are isomorphic using pynauty
     Ignores all attributes
     """
-    g1 = pynauty.Graph(number_of_vertices=G1.number_of_nodes(), directed=nx.is_directed(G1),
-                adjacency_dict = get_adjacency_dict(G1))
-    g2 = pynauty.Graph(number_of_vertices=G2.number_of_nodes(), directed=nx.is_directed(G2),
-                adjacency_dict = get_adjacency_dict(G2))
-    return pynauty.isomorphic(g1,g2)
+    g1 = pynauty.Graph(
+        number_of_vertices=G1.number_of_nodes(),
+        directed=nx.is_directed(G1),
+        adjacency_dict=get_adjacency_dict(G1),
+    )
+    g2 = pynauty.Graph(
+        number_of_vertices=G2.number_of_nodes(),
+        directed=nx.is_directed(G2),
+        adjacency_dict=get_adjacency_dict(G2),
+    )
+    return pynauty.isomorphic(g1, g2)
 
 
 def get_graph_id(G):
     graph2pynauty = lookup_table_handler.get_graph2pynauty()
 
-    g = pynauty.Graph(number_of_vertices=G.number_of_nodes(), directed=nx.is_directed(G),
-                adjacency_dict = get_adjacency_dict(G))
+    g = pynauty.Graph(
+        number_of_vertices=G.number_of_nodes(),
+        directed=nx.is_directed(G),
+        adjacency_dict=get_adjacency_dict(G),
+    )
     cert = pynauty.certificate(g)
 
     return graph2pynauty[cert]
 
 
 def get_graph_from_id(graph_id, nqubits):
-    graph_id2graph = lookup_table_handler.get_large_graph_table(nqubits)['graph_id2graph']
+    graph_id2graph = lookup_table_handler.get_large_graph_table(nqubits)[
+        "graph_id2graph"
+    ]
     return copy.deepcopy(graph_id2graph[graph_id])
 
 
@@ -106,73 +135,96 @@ def opt_angles_for_graph(G, p):
         return copy.deepcopy(graph2angles[G.number_of_nodes()][p][graph_id])
     else:
         # TODO: support for other datasets should be added here
-        raise NotImplementedError("Should return angles from fixed angle conjecture paper; TBD")
+        raise NotImplementedError(
+            "Should return angles from fixed angle conjecture paper; TBD"
+        )
 
 
 def get_full_qaoa_dataset_table():
     return lookup_table_handler.get_full_qaoa_dataset_table()
 
+
 def get_full_qaoa_dataset_table_row(G, p):
-    """Returns full table row for a given NetworkX graph
-    """
+    """Returns full table row for a given NetworkX graph"""
     full_qaoa_dataset_table = lookup_table_handler.get_full_qaoa_dataset_table()
 
-    g = pynauty.Graph(number_of_vertices=G.number_of_nodes(), directed=nx.is_directed(G),
-                adjacency_dict = get_adjacency_dict(G))
+    g = pynauty.Graph(
+        number_of_vertices=G.number_of_nodes(),
+        directed=nx.is_directed(G),
+        adjacency_dict=get_adjacency_dict(G),
+    )
     cert = pynauty.certificate(g)
 
-    return full_qaoa_dataset_table.loc[(cert,p)]
+    return full_qaoa_dataset_table.loc[(cert, p)]
+
 
 def angles_to_qaoa_format(angles):
-    """ Converts from format in graph2angles
+    """Converts from format in graph2angles
     into the format used by qaoa.py
     get_maxcut_qaoa_circuit(G, angles['beta'], angles['gamma'])
     """
     res = copy.deepcopy(angles)
-    res['beta'] = beta_to_qaoa_format(res['beta'])
-    res['gamma'] = gamma_to_qaoa_format(res['gamma'])
+    res["beta"] = beta_to_qaoa_format(res["beta"])
+    res["gamma"] = gamma_to_qaoa_format(res["gamma"])
     return res
 
+
 def beta_to_qaoa_format(beta):
-    """ Converts from format in graph2angles
+    """Converts from format in graph2angles
     into the format used by qaoa.py
     """
-    return np.pi*np.array(beta)
+    return np.pi * np.array(beta)
+
 
 def gamma_to_qaoa_format(gamma):
-    """ Converts from format in graph2angles
+    """Converts from format in graph2angles
     into the format used by qaoa.py
     get_maxcut_qaoa_circuit(G, angles['beta'], angles['gamma'])
     """
-    return -np.pi*np.array(gamma) / 2
+    return -np.pi * np.array(gamma) / 2
+
 
 def angles_to_qiskit_format(angles):
-    """ Converts from format in graph2angles
+    """Converts from format in graph2angles
     into the format used by QAOAAnsatz
     """
-    return np.concatenate([[-np.pi*g, np.pi*b] for g, b in zip(angles['gamma'], angles['beta'])])
+    return np.concatenate(
+        [[-np.pi * g, np.pi * b] for g, b in zip(angles["gamma"], angles["beta"])]
+    )
+
 
 def angles_to_qtensor_format(angles):
-    """ Converts from format in graph2angles
+    """Converts from format in graph2angles
     into the format used by QTensor
     """
-    return {'gamma': [-g/2 for g in angles['gamma']], 'beta': angles['beta']}
+    return {"gamma": [-g / 2 for g in angles["gamma"]], "beta": angles["beta"]}
 
 
-def load_results_file_into_dataframe(n_qubits,p):
+def load_results_file_into_dataframe(n_qubits, p):
     """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
     Column names are from ../data/qaoa-dataset-version1/Results/How_to_read_data_columns.txt
     One column is added:
     p_max : maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
     """
-    colnames=['graph_id','C_{true opt}','C_init','C_opt','pr(max)','p']
+    colnames = ["graph_id", "C_{true opt}", "C_init", "C_opt", "pr(max)", "p"]
     for i in range(p):
         colnames.append(f"beta_{i}/pi")
     for i in range(p):
         colnames.append(f"gamma_{i}/pi")
-    df = pd.read_csv(Path(utils_folder, f"../data/qaoa-dataset-version1/Results/p={p}/n={n_qubits}_p={p}.txt"), delim_whitespace=True, names=colnames, header=None, index_col='graph_id')
-    df['p_max'] = p # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
-    assert((df['p_max'] >= df['p']).all())
+    df = pd.read_csv(
+        Path(
+            utils_folder,
+            f"../data/qaoa-dataset-version1/Results/p={p}/n={n_qubits}_p={p}.txt",
+        ),
+        delim_whitespace=True,
+        names=colnames,
+        header=None,
+        index_col="graph_id",
+    )
+    df[
+        "p_max"
+    ] = p  # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+    assert (df["p_max"] >= df["p"]).all()
     return df
 
 
@@ -180,13 +232,17 @@ def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
     """Retrieves a graph from graph_id and nqubits and assigns weights
     from df_weights
     """
-    weights = list(df_weights[(df_weights['graph_id'] == graph_id) \
-                 & (df_weights['weight_id'] == weight_id)]['weights'])
-    assert(len(weights) == 1)
+    weights = list(
+        df_weights[
+            (df_weights["graph_id"] == graph_id)
+            & (df_weights["weight_id"] == weight_id)
+        ]["weights"]
+    )
+    assert len(weights) == 1
     weights = weights[0]
     G = get_graph_from_id(graph_id, nqubits)
     for u, v, attr_dict in G.edges(data=True):
-        G[u][v]['weight'] = weights[attr_dict['edge_id']]
+        G[u][v]["weight"] = weights[attr_dict["edge_id"]]
     return copy.deepcopy(G)
 
 
@@ -197,47 +253,78 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
     One column is added:
     p_max : maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
     """
-    colnames=['graph_id','weight_id','C_{true opt}','C_init','C_opt','pr(max)','p']
+    colnames = [
+        "graph_id",
+        "weight_id",
+        "C_{true opt}",
+        "C_init",
+        "C_opt",
+        "pr(max)",
+        "p",
+    ]
     for i in range(p):
         colnames.append(f"beta_{i}/pi")
     for i in range(p):
         colnames.append(f"gamma_{i}/pi")
-    colnames.append('mean(weight)')
-    colnames.append('std(weight)')
+    colnames.append("mean(weight)")
+    colnames.append("std(weight)")
     dfs = []
     for fname in folder_path.glob("QAOA_dat_weighted_*"):
-        dfs.append(pd.read_csv(fname, delim_whitespace=True, names=colnames, header=None))
+        dfs.append(
+            pd.read_csv(fname, delim_whitespace=True, names=colnames, header=None)
+        )
     df = pd.concat(dfs)
-    df['p_max'] = p # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
-    df['beta'] = df.apply(lambda row: [row[f"beta_{i}/pi"] for i in range(p)], axis=1)
-    df['gamma'] = df.apply(lambda row: [row[f"gamma_{i}/pi"] for i in range(p)], axis=1)
-    df['theta'] = df.apply(lambda row: row['gamma'] + row['beta'], axis=1)
-    df['G'] = df.apply(lambda row: get_graph_and_assign_weights(row['graph_id'], row['weight_id'], nqubits, df_weights), axis=1)
-    assert(np.all(
+    df[
+        "p_max"
+    ] = p  # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+    df["beta"] = df.apply(lambda row: [row[f"beta_{i}/pi"] for i in range(p)], axis=1)
+    df["gamma"] = df.apply(lambda row: [row[f"gamma_{i}/pi"] for i in range(p)], axis=1)
+    df["theta"] = df.apply(lambda row: row["gamma"] + row["beta"], axis=1)
+    df["G"] = df.apply(
+        lambda row: get_graph_and_assign_weights(
+            row["graph_id"], row["weight_id"], nqubits, df_weights
+        ),
+        axis=1,
+    )
+    assert np.all(
         np.isclose(
-            df.apply(lambda row: np.mean([x[2]['weight'] for x in row['G'].edges(data=True)]), axis=1),
-            df['mean(weight)'],
-            atol=1e-07
-        ) | np.isnan(df['std(weight)'])
-    ))
+            df.apply(
+                lambda row: np.mean(
+                    [x[2]["weight"] for x in row["G"].edges(data=True)]
+                ),
+                axis=1,
+            ),
+            df["mean(weight)"],
+            atol=1e-07,
+        )
+        | np.isnan(df["std(weight)"])
+    )
 
-    assert(np.all(
+    assert np.all(
         np.isclose(
-            df.apply(lambda row: np.std([x[2]['weight'] for x in row['G'].edges(data=True)]), axis=1),
-            df['std(weight)'],
-            atol=1e-07
-        ) | np.isnan(df['std(weight)'])
-    ))
+            df.apply(
+                lambda row: np.std([x[2]["weight"] for x in row["G"].edges(data=True)]),
+                axis=1,
+            ),
+            df["std(weight)"],
+            atol=1e-07,
+        )
+        | np.isnan(df["std(weight)"])
+    )
 
-    assert(np.all(
+    assert np.all(
         np.isclose(
             df.head(100).apply(
-                lambda row: qaoa_maxcut_energy(row['G'], beta_to_qaoa_format(row['beta']), gamma_to_qaoa_format(row['gamma'])),
-                axis=1
+                lambda row: qaoa_maxcut_energy(
+                    row["G"],
+                    beta_to_qaoa_format(row["beta"]),
+                    gamma_to_qaoa_format(row["gamma"]),
+                ),
+                axis=1,
             ),
-            df.head(100)['C_opt']
+            df.head(100)["C_opt"],
         )
-    ))
+    )
 
     return df
 
@@ -256,10 +343,14 @@ def load_weights_into_dataframe(folder_path):
     lines = []
 
     for fname in folder_path.glob("weights_*"):
-        with open(fname, 'r') as f:
+        with open(fname, "r") as f:
             for line_num, line in enumerate(f.readlines()):
                 line = line.strip().split()
-                line_d = {'weight_id':line_num+1, 'graph_id':int(line[0]), 'weights':[float(x) for x in line[1:]]}
+                line_d = {
+                    "weight_id": line_num + 1,
+                    "graph_id": int(line[0]),
+                    "weights": [float(x) for x in line[1:]],
+                }
                 lines.append(line_d)
     return pd.DataFrame(lines, columns=lines[0].keys())
 
@@ -270,15 +361,18 @@ def load_weights_into_dataframe(folder_path):
 
 
 def state_num2str(basis_state_as_num, nqubits):
-    return '{0:b}'.format(basis_state_as_num).zfill(nqubits)
+    return "{0:b}".format(basis_state_as_num).zfill(nqubits)
+
 
 def state_str2num(basis_state_as_str):
     return int(basis_state_as_str, 2)
+
 
 def state_reverse(basis_state_as_num, nqubits):
     basis_state_as_str = state_num2str(basis_state_as_num, nqubits)
     new_str = basis_state_as_str[::-1]
     return state_str2num(new_str)
+
 
 def get_adjusted_state(state):
     nqubits = np.log2(state.shape[0])
@@ -286,10 +380,11 @@ def get_adjusted_state(state):
         raise ValueError("Input vector is not a valid statevector for qubits.")
     nqubits = int(nqubits)
 
-    adjusted_state = np.zeros(2**nqubits, dtype=complex)
-    for basis_state in range(2**nqubits):
-         adjusted_state[state_reverse(basis_state, nqubits)] = state[basis_state]
+    adjusted_state = np.zeros(2 ** nqubits, dtype=complex)
+    for basis_state in range(2 ** nqubits):
+        adjusted_state[state_reverse(basis_state, nqubits)] = state[basis_state]
     return adjusted_state
+
 
 def state_to_ampl_counts(vec, eps=1e-15):
     """Converts a statevector to a dictionary
@@ -300,10 +395,10 @@ def state_to_ampl_counts(vec, eps=1e-15):
         raise ValueError("Input vector is not a valid statevector for qubits.")
     qubit_dims = int(qubit_dims)
     counts = {}
-    str_format = '0{}b'.format(qubit_dims)
+    str_format = "0{}b".format(qubit_dims)
     for kk in range(vec.shape[0]):
         val = vec[kk]
-        if val.real**2+val.imag**2 > eps:
+        if val.real ** 2 + val.imag ** 2 > eps:
             counts[format(kk, str_format)] = val
     return counts
 
@@ -317,12 +412,16 @@ def obj_from_statevector(sv, obj_f, precomputed=None):
     if precomputed is None:
         adj_sv = get_adjusted_state(sv)
         counts = state_to_ampl_counts(adj_sv)
-        assert(np.isclose(sum(np.abs(v)**2 for v in counts.values()), 1))
-        return sum(obj_f(np.array([int(x) for x in k])) * (np.abs(v)**2) for k, v in counts.items())
+        assert np.isclose(sum(np.abs(v) ** 2 for v in counts.values()), 1)
+        return sum(
+            obj_f(np.array([int(x) for x in k])) * (np.abs(v) ** 2)
+            for k, v in counts.items()
+        )
     else:
-        return np.dot(precomputed, np.abs(sv)**2)
+        return np.dot(precomputed, np.abs(sv) ** 2)
 
-def maxcut_obj(x,G):
+
+def maxcut_obj(x, G):
     """Compute the value of a cut.
     Args:
         x (numpy.ndarray): binary string as numpy array.
