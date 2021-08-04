@@ -10,4 +10,6 @@ from .utils import get_graph_id, \
         get_fixed_angles, \
         get_full_qaoa_dataset_table_row, \
         get_full_qaoa_dataset_table, \
+        get_3_reg_dataset_table, \
+        get_3_reg_dataset_table_row, \
         qaoa_maxcut_energy

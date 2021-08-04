@@ -9,7 +9,21 @@ import pytest
 
 from qiskit.quantum_info import Statevector
 
-from QAOAKit import opt_angles_for_graph, get_fixed_angles, get_graph_id, get_graph_from_id, angles_to_qaoa_format, beta_to_qaoa_format, gamma_to_qaoa_format, angles_to_qiskit_format, angles_to_qtensor_format, get_full_qaoa_dataset_table_row, get_full_qaoa_dataset_table, qaoa_maxcut_energy, angles_from_qiskit_format
+from QAOAKit import opt_angles_for_graph, \
+        get_fixed_angles, \
+        get_graph_id, \
+        get_graph_from_id, \
+        angles_to_qaoa_format, \
+        beta_to_qaoa_format, \
+        gamma_to_qaoa_format, \
+        angles_to_qiskit_format, \
+        angles_to_qtensor_format, \
+        get_3_reg_dataset_table, \
+        get_3_reg_dataset_table_row, \
+        get_full_qaoa_dataset_table_row, \
+        get_full_qaoa_dataset_table, \
+        qaoa_maxcut_energy, \
+        angles_from_qiskit_format
 from QAOAKit.utils import obj_from_statevector, maxcut_obj, isomorphic, load_weights_into_dataframe, load_weighted_results_into_dataframe
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from qiskit_optimization import QuadraticProgram
@@ -158,3 +172,39 @@ def test_from_qiskit_conversion():
     assert(np.all(np.isclose(angles['beta'], angles2['beta'])))
     assert(np.all(np.isclose(angles['gamma'], angles2['gamma'])))
 
+
+def test_3_reg_table():
+    df = get_3_reg_dataset_table().reset_index()
+    assert(len(df) >= 1000)
+
+    # test that the angles are correct
+    for _, row in df[(df['p_max'] == 1) | (df['p_max'] == 2)].head(50).iterrows():
+        G = row['G']
+        angles = angles_to_qaoa_format({'beta': row['beta'], 'gamma':row['gamma']})
+        assert(
+            np.isclose(
+                qaoa_maxcut_energy(G, angles['beta'], angles['gamma']),
+                row['C_opt']
+            )
+        )
+
+    # test that the optima match the full qaoa table
+    for _, row in df[(df['p_max'] == 1) | (df['p_max'] == 2)].head(50).iterrows():
+        G = row['G']
+        angles = angles_to_qaoa_format({'beta': row['beta'], 'gamma':row['gamma']})
+        assert(
+            np.isclose(
+                qaoa_maxcut_energy(G, angles['beta'], angles['gamma']), 
+                row['C_opt']
+            )
+        )
+
+def test_get_opt_angles_large_3_reg():
+    for s in range(10):
+        G = nx.random_regular_graph(3, 10, seed=s)
+        for p in [1,2]:
+            angles = angles_to_qaoa_format(opt_angles_for_graph(G,p))
+            row = get_3_reg_dataset_table_row(G,p)
+            assert(
+                np.isclose(row['C_opt'], qaoa_maxcut_energy(G, angles['beta'], angles['gamma']))
+            )
