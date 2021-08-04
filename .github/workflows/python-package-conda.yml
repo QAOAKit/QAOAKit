@@ -27,6 +27,7 @@ jobs:
         pip install -e .
     - name: qtensor
       run: |
+        cd $RUNNER_TEMP
         git clone --recurse-submodules https://github.com/DaniloZZZ/QTensor
         cd QTensor
         cd qtree && pip install .
