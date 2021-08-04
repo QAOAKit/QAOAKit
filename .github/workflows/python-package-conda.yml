@@ -38,7 +38,4 @@ jobs:
         python -m QAOAKit.build_full_qaoa_dataset_table
     - name: test
       run: |
-        pytest --ignore=QTensor
-    - uses: rickstaa/action-black@v1
-      with:
-        fail_on_error: false
+        pytest
