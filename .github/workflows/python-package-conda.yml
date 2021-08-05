@@ -45,6 +45,6 @@ jobs:
     - name: test
       run: |
         pytest
-    - uses: rickstaa/action-black@v1
-      with:
-        fail_on_error: false
+    - name: lint
+      run: |
+        black . --check || echo "there were errors"
