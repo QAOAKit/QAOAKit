@@ -45,3 +45,6 @@ jobs:
     - name: test
       run: |
         pytest
+    - uses: rickstaa/action-black@v1
+      with:
+        fail_on_error: false
