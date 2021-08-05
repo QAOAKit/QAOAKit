@@ -1,0 +1,47 @@
+name: Python Package using Conda
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      max-parallel: 5
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    - name: Add Mac install dir to system path
+      run: |
+        echo "/Users/runner/.local/bin" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        pip install -e .
+    - name: qtensor
+      run: |
+        cd $RUNNER_TEMP
+        git clone --recurse-submodules https://github.com/DaniloZZZ/QTensor
+        cd QTensor
+        cd qtree && pip install .
+        cd .. && pip install .
+        cd
+    - name: Load data
+      run: |
+        python -m QAOAKit.build_table_graph2pynauty_large
+        python -m QAOAKit.build_full_qaoa_dataset_table
+    - name: test
+      run: |
+        pytest
