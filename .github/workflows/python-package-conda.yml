@@ -47,4 +47,5 @@ jobs:
         pytest
     - name: lint
       run: |
+        pip install black
         black . --check || echo "there were errors"
