@@ -7,11 +7,13 @@ on:
     branches: [ master ]
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+
     strategy:
       max-parallel: 5
-
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.8
@@ -22,6 +24,9 @@ jobs:
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
+    - name: Add Mac install dir to system path
+      run: |
+        echo "/Users/runner/.local/bin" >> $GITHUB_PATH
     - name: Install dependencies
       run: |
         pip install -e .
