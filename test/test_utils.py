@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import pandas as pd
+from qiskit import QuantumRegister, ClassicalRegister, execute
 from qiskit.providers.aer import AerSimulator
 from functools import partial
 from pathlib import Path
@@ -156,3 +157,23 @@ def test_example_in_README():
     backend = AerSimulator()
     assert(isinstance(backend.run(qc).result().get_counts(), dict))
 
+
+def test_no_save_state():
+    n = 6
+    qc = get_maxcut_qaoa_circuit(nx.star_graph(n-1), [0.1], [0.1], save_state=False)
+    creg = ClassicalRegister(n)
+    creg_ancilla = ClassicalRegister(1)
+    qreg_ancilla = QuantumRegister(1)
+    qc.add_register(creg)
+    qc.add_register(creg_ancilla)
+    qc.add_register(qreg_ancilla)
+    qc.h(qreg_ancilla)
+    for i in range(n):
+        qc.cx(qreg_ancilla, i)
+    qc.h(qreg_ancilla)
+
+    qc.measure(range(6), creg)
+    qc.measure(qreg_ancilla, creg_ancilla)
+
+    counts = execute(qc, AerSimulator(), basis_gates = ['u1','u2','u3','cx']).result().get_counts()
+    assert(isinstance(counts, dict))
