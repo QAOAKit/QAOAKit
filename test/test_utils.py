@@ -142,3 +142,17 @@ def test_qtensor_angle_conversion():
             opt_cut = row['C_opt']
             assert(np.isclose(opt_cut, obj_val))
 
+
+def test_example_in_README():
+    # build graph
+    G = nx.star_graph(5)
+    # grab optimal angles
+    p = 3
+    angles = angles_to_qaoa_format(opt_angles_for_graph(G,p))
+    # build circuit
+    qc = get_maxcut_qaoa_circuit(G, angles['beta'], angles['gamma'])
+    qc.measure_all()
+    # run circuit
+    backend = AerSimulator()
+    assert(isinstance(backend.run(qc).result().get_counts(), dict))
+
