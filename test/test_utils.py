@@ -44,8 +44,9 @@ def test_fixed_angle_retrieval():
     for d in range(3,5):
         for p in range(1,4):
             angles = get_fixed_angles(d,p)
-            assert(type(angles) is list)
-            assert(len(angles) == 2*p)
+            assert(type(angles) is dict)
+            assert(len(angles['beta']) == p)
+            assert(len(angles['gamma']) == p)
 
 def test_tables_consistency():
     p = 1
@@ -199,6 +200,23 @@ def test_3_reg_table():
             )
         )
 
+def test_fixed_angles_3_reg():
+    df = get_3_reg_dataset_table().sample(n=100).reset_index()
+
+    for _, row in df.iterrows():
+        angles = angles_to_qaoa_format(get_fixed_angles(3,row['p_max']))
+        print(
+            qaoa_maxcut_energy(row['G'], angles['beta'], angles['gamma']),
+            row['C_fixed']
+        )
+        assert(
+            np.isclose(
+                qaoa_maxcut_energy(row['G'], angles['beta'], angles['gamma']),
+                row['C_fixed']
+            )
+        )
+
+
 def test_get_opt_angles_large_3_reg():
     for s in range(10):
         G = nx.random_regular_graph(3, 10, seed=s)
@@ -208,3 +226,4 @@ def test_get_opt_angles_large_3_reg():
             assert(
                 np.isclose(row['C_opt'], qaoa_maxcut_energy(G, angles['beta'], angles['gamma']))
             )
+

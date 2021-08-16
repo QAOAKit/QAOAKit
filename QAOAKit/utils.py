@@ -34,6 +34,7 @@ class LookupTableHandler:
         self.large_graph_table = None
         self.full_qaoa_dataset_table = None
         self.three_reg_dataset_table = None
+        self.fixed_angle_dataset_table = None
 
     def get_graph2angles(self):
         if self.graph2angles is None:
@@ -61,6 +62,28 @@ class LookupTableHandler:
         if self.three_reg_dataset_table is None:
             self.three_reg_dataset_table = pd.read_pickle(Path(utils_folder, "../data/lookup_tables/3_reg_dataset_table.p")).set_index(['pynauty_cert','p_max'])
         return self.three_reg_dataset_table
+
+    def get_fixed_angle_dataset_table(self):
+        # fixed angle dataset is small, no need to store pickle on disk
+        if self.fixed_angle_dataset_table is None:
+            with open(Path(utils_folder, "../data/fixed-angle-2021-07/angles_regular_graphs.json")) as json_file:
+                data = json.load(json_file)
+
+            lines = []
+            for d in data.keys():
+                for p in data[d]:
+                    if int(p) < 12: #remove bad value at p=12
+                        angles = [float(x) for x in data[d][p]['angles']]
+                        line_d={
+                            'd': int(d),
+                            'p': int(p),
+                            'gamma': np.array(angles[:int(p)]) / np.pi,
+                            'beta': np.array(angles[int(p):]) / np.pi,
+                            'AR': float(data[d][p]['AR'])
+                        }
+                        lines.append(line_d)
+            self.fixed_angle_dataset_table = pd.DataFrame(lines, columns=lines[0].keys())
+        return self.fixed_angle_dataset_table
 
 lookup_table_handler = LookupTableHandler()
 
@@ -118,8 +141,13 @@ def opt_angles_for_graph(G, p):
         raise NotImplementedError("Should return angles from fixed angle conjecture paper; TBD")
 
 def get_fixed_angles(d, p):
-    df = get_fixed_angle_values()
-    return list(df[(df['d'] == int(d)) & (df['p'] == int(p))].angles)[0]
+    df = lookup_table_handler.get_fixed_angle_dataset_table()
+    row = df[(df['d'] == d) & (df['p'] == p)]
+    assert(len(row) == 1)
+    row = row.squeeze()
+    assert(isinstance(row, pd.Series))
+    angles = {'beta': row.beta, 'gamma': row.gamma}
+    return angles
 
 def get_full_qaoa_dataset_table():
     return lookup_table_handler.get_full_qaoa_dataset_table()
@@ -318,24 +346,6 @@ def load_weights_into_dataframe(folder_path):
             for line_num, line in enumerate(f.readlines()):
                 line = line.strip().split()
                 line_d = {'weight_id':line_num+1, 'graph_id':int(line[0]), 'weights':[float(x) for x in line[1:]]}
-                lines.append(line_d)
-    return pd.DataFrame(lines, columns=lines[0].keys())
-
-
-def get_fixed_angle_values():
-    with open(Path(utils_folder, "../data/fixed-angle-2021-07/angles_regular_graphs.json")) as json_file:
-        data = json.load(json_file)
-
-    lines = []
-    for d in data.keys():
-        for p in data[d]:
-            if int(p) < 12: #remove bad value at p=12
-                line_d={
-                    'd': int(d),
-                    'p': int(p),
-                    'angles': [float(x) for x in data[d][p]['angles']],
-                    'AR': float(data[d][p]['AR'])
-                }
                 lines.append(line_d)
     return pd.DataFrame(lines, columns=lines[0].keys())
 
