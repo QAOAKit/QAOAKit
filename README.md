@@ -65,7 +65,7 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 Get packages
 ```
 python -m pip install --user --upgrade setuptools wheel
-python -m pip install — user — upgrade twine
+python -m pip install --user --upgrade twine
 ```
 Build archive
 ```
