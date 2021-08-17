@@ -77,9 +77,15 @@ python -m twine upload --repository testpypi dist/*
 ```
 Test install
 ```
-pip uninstall QAOAKit
-python3 -m pip install --index-url https://test.pypi.org/simple/ QAOAKit
+conda env remove -n test_qaoa
+conda create -y -n test_qaoa python=3
+conda activate test_qaoa
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple QAOAKit
+python -m QAOAKit.build_table_graph2pynauty_large
+python -m QAOAKit.build_full_qaoa_dataset_table
+python -c 'from QAOAKit import opt_angles_for_graph; import networkx as nx; print(opt_angles_for_graph(nx.star_graph(5), 2))'
 ```
+
 To publish to real PyPI (be careful!)
 ```
 python -m twine upload dist/*
