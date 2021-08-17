@@ -4,8 +4,12 @@ from .utils import get_graph_id, \
         angles_to_qaoa_format, \
         angles_to_qiskit_format, \
         angles_to_qtensor_format, \
+        angles_from_qiskit_format, \
         beta_to_qaoa_format, \
         gamma_to_qaoa_format, \
+        get_fixed_angles, \
         get_full_qaoa_dataset_table_row, \
         get_full_qaoa_dataset_table, \
+        get_3_reg_dataset_table, \
+        get_3_reg_dataset_table_row, \
         qaoa_maxcut_energy

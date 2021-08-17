@@ -1,8 +1,13 @@
 import pandas as pd
 import pickle
 from pathlib import Path
+import json
+import pynauty
+import copy
+import networkx as nx
+import numpy as np
 
-from .utils import load_results_file_into_dataframe
+from .utils import load_results_file_into_dataframe, get_adjacency_dict
 
 build_full_qaoa_dataset_table_folder = Path(__file__).parent
 
@@ -47,3 +52,34 @@ for n_qubits in range(3,10):
         df = df.append(df_orig.reset_index())
 assert(len(df) == sum(v * 3 for v in n_graphs.values()))
 df.to_pickle(Path(build_full_qaoa_dataset_table_folder, "../data/lookup_tables/full_qaoa_dataset_table.p"))
+
+print("Loading the results for 3-regular graphs...")
+with open(Path(build_full_qaoa_dataset_table_folder, "../data/3_regular/3r_WURTZ_ensemble.json")) as json_file:
+     data = json.load(json_file)
+
+rows = []
+for row in data:
+    G = nx.Graph()
+    G.add_edges_from(row['edges'])
+    g = pynauty.Graph(number_of_vertices=G.number_of_nodes(), directed=nx.is_directed(G),
+            adjacency_dict = get_adjacency_dict(G))
+    cert = pynauty.certificate(g)
+    c_true_opt = row['0']['MaxCut']
+    
+    for p in range(1,11):
+        d = {}
+        d['G'] = copy.deepcopy(G)
+        d['n'] = G.number_of_nodes()
+        d['p_max'] = p
+        d['pynauty_cert'] = cert
+        d['C_{true opt}'] = c_true_opt
+        d['C_fixed'] = row[str(p)]['fixed_val']
+        if 'optimized_val' in row[str(p)]:
+            d['C_opt'] = row[str(p)]['optimized_val']
+            d['beta'] = np.array(row[str(p)]['angles'][0]['beta']) / np.pi
+            d['gamma'] = -2 * np.array(row[str(p)]['angles'][0]['gamma']) / np.pi
+            d['theta'] = np.hstack([d['gamma'], d['beta']])
+        rows.append(copy.deepcopy(d))
+
+df = pd.DataFrame(rows, columns=rows[0].keys())
+df.to_pickle(Path(build_full_qaoa_dataset_table_folder, "../data/lookup_tables/3_reg_dataset_table.p"))
