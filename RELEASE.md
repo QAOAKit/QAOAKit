@@ -17,6 +17,8 @@ python -m twine upload --repository testpypi dist/*
 ```
 Test install
 ```
+cd /tmp
+conda deactivate
 conda env remove -n test_qaoa
 conda create -y -n test_qaoa python=3
 conda activate test_qaoa
