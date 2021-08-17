@@ -45,8 +45,7 @@ Note that current implementation requires significant amounts of RAM (~5GB) as i
 git clone https://github.com/QAOAKit/QAOAKit.git
 cd QAOAKit
 pip install -e .
-python -m QAOAKit.build_table_graph2pynauty_large
-python -m QAOAKit.build_full_qaoa_dataset_table
+python -m QAOAKit.build_tables
 pytest
 ```
 
@@ -58,3 +57,4 @@ If you have an issue like "Illegal Instruction (core dumped)", you may have to f
 - [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
 - [ ] Add optimal parameters for a few larger instances to showcase the power of transferability (add `examples` folder?)
 - [ ] Libensemble example with multiprocessing that uses sampled points as initial guesses
+
