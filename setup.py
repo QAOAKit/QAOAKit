@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='QAOAKit',
-    version='0.1.0',
+    version='0.1.2',
     description='Tools for using the pre-optimized parameters from ORNL dataset (and more)',
     author='Ruslan Shaydulin',
     author_email='ruslan@shaydul.in',

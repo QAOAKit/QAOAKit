@@ -66,7 +66,8 @@ Get packages
 python -m pip install --user --upgrade setuptools wheel
 python -m pip install --user --upgrade twine
 ```
-Build archive
+
+Build archive (don't forget to update the version in setup.py!)
 ```
 rm dist/*
 python setup.py sdist bdist_wheel
