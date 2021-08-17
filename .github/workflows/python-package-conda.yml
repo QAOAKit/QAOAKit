@@ -40,8 +40,7 @@ jobs:
         cd
     - name: Load data
       run: |
-        python -m QAOAKit.build_table_graph2pynauty_large
-        python -m QAOAKit.build_full_qaoa_dataset_table
+        python -m QAOAKit.build_tables
     - name: test
       run: |
         pytest
