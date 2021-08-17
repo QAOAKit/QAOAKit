@@ -222,29 +222,6 @@ def angles_to_qtensor_format(angles):
     """
     return {'gamma': [-g/2 for g in angles['gamma']], 'beta': angles['beta']}
 
-def wurtz_angles_to_qiskit_format(angles):
-    '''
-
-    Parameters
-    ----------
-    angles : dict
-        Angles as sourced from the json list of all graphs (`3_regular/3r_WURTZ_ensemble.json`).
-
-    Returns
-    -------
-    angles_qiskit: np.array
-        Angles in the qiskit format of https://qiskit.org/textbook/ch-applications/qaoa.html
-
-    '''
-    import warnings; warnings.warn("wurtz_angles_to_qiskit_format is not covered by tests yet")
-    p = len(angles['gamma'])
-
-    angles_qiskit = np.zeros(2*p)
-    angles_qiskit[:p] = -angles['beta']
-    angles_qiskit[p:] = -angles['gamma']
-
-    return angles_qiskit
-
 def load_results_file_into_dataframe(n_qubits,p):
     """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
     Column names are from ../data/qaoa-dataset-version1/Results/How_to_read_data_columns.txt
