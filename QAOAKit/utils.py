@@ -7,6 +7,7 @@ import pandas as pd
 from pathlib import Path
 from functools import partial
 from qiskit.providers.aer import AerSimulator
+import json
 
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit
 
@@ -32,6 +33,8 @@ class LookupTableHandler:
         # example: large_graph_table[5]['graph_id2graph']
         self.large_graph_table = None
         self.full_qaoa_dataset_table = None
+        self.three_reg_dataset_table = None
+        self.fixed_angle_dataset_table = None
 
     def get_graph2angles(self):
         if self.graph2angles is None:
@@ -54,6 +57,33 @@ class LookupTableHandler:
         if self.full_qaoa_dataset_table is None:
             self.full_qaoa_dataset_table = pd.read_pickle(Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")).set_index(['pynauty_cert','p_max'])
         return self.full_qaoa_dataset_table
+
+    def get_3_reg_dataset_table(self):
+        if self.three_reg_dataset_table is None:
+            self.three_reg_dataset_table = pd.read_pickle(Path(utils_folder, "../data/lookup_tables/3_reg_dataset_table.p")).set_index(['pynauty_cert','p_max'])
+        return self.three_reg_dataset_table
+
+    def get_fixed_angle_dataset_table(self):
+        # fixed angle dataset is small, no need to store pickle on disk
+        if self.fixed_angle_dataset_table is None:
+            with open(Path(utils_folder, "../data/fixed-angle-2021-07/angles_regular_graphs.json")) as json_file:
+                data = json.load(json_file)
+
+            lines = []
+            for d in data.keys():
+                for p in data[d]:
+                    if int(p) < 12: #remove bad value at p=12
+                        angles = [float(x) for x in data[d][p]['angles']]
+                        line_d={
+                            'd': int(d),
+                            'p': int(p),
+                            'gamma': np.array(angles[:int(p)]) / np.pi,
+                            'beta': np.array(angles[int(p):]) / np.pi,
+                            'AR': float(data[d][p]['AR'])
+                        }
+                        lines.append(line_d)
+            self.fixed_angle_dataset_table = pd.DataFrame(lines, columns=lines[0].keys())
+        return self.fixed_angle_dataset_table
 
 lookup_table_handler = LookupTableHandler()
 
@@ -104,13 +134,26 @@ def opt_angles_for_graph(G, p):
         graph2angles = lookup_table_handler.get_graph2angles()
         graph_id = get_graph_id(G)
         return copy.deepcopy(graph2angles[G.number_of_nodes()][p][graph_id])
+    elif nx.is_regular(G) and G.degree[0] == 3 and p <= 2:
+        row = get_3_reg_dataset_table_row(G, p)
+        return  {'beta' : row['beta'], 'gamma': row['gamma']}
     else:
-        # TODO: support for other datasets should be added here
         raise NotImplementedError("Should return angles from fixed angle conjecture paper; TBD")
 
+def get_fixed_angles(d, p):
+    df = lookup_table_handler.get_fixed_angle_dataset_table()
+    row = df[(df['d'] == d) & (df['p'] == p)]
+    assert(len(row) == 1)
+    row = row.squeeze()
+    assert(isinstance(row, pd.Series))
+    angles = {'beta': row.beta, 'gamma': row.gamma}
+    return angles
 
 def get_full_qaoa_dataset_table():
     return lookup_table_handler.get_full_qaoa_dataset_table()
+
+def get_3_reg_dataset_table():
+    return lookup_table_handler.get_3_reg_dataset_table()
 
 def get_full_qaoa_dataset_table_row(G, p):
     """Returns full table row for a given NetworkX graph
@@ -122,6 +165,17 @@ def get_full_qaoa_dataset_table_row(G, p):
     cert = pynauty.certificate(g)
 
     return full_qaoa_dataset_table.loc[(cert,p)]
+
+def get_3_reg_dataset_table_row(G, p):
+    """Returns full table row for a given NetworkX graph
+    """
+    df = lookup_table_handler.get_3_reg_dataset_table()
+
+    g = pynauty.Graph(number_of_vertices=G.number_of_nodes(), directed=nx.is_directed(G),
+                adjacency_dict = get_adjacency_dict(G))
+    cert = pynauty.certificate(g)
+
+    return df.loc[(cert,p)]
 
 def angles_to_qaoa_format(angles):
     """ Converts from format in graph2angles
@@ -152,12 +206,21 @@ def angles_to_qiskit_format(angles):
     """
     return np.concatenate([[-np.pi*g, np.pi*b] for g, b in zip(angles['gamma'], angles['beta'])])
 
+def angles_from_qiskit_format(angles):
+    """ Converts from the format used by QAOAAnsatz
+    into the format in graph2angles
+    """
+    res = {}
+    assert(len(angles) % 2 == 0)
+    res['gamma'] = list(x / (-np.pi) for x in angles[::2])
+    res['beta'] = list(x / np.pi for x in angles[1::2])
+    return res
+
 def angles_to_qtensor_format(angles):
     """ Converts from format in graph2angles
     into the format used by QTensor
     """
     return {'gamma': [-g/2 for g in angles['gamma']], 'beta': angles['beta']}
-
 
 def load_results_file_into_dataframe(n_qubits,p):
     """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
