@@ -68,6 +68,7 @@ python -m pip install --user --upgrade twine
 ```
 Build archive
 ```
+rm dist/*
 python setup.py sdist bdist_wheel
 ```
 Upload to testpypi
