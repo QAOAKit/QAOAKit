@@ -36,6 +36,8 @@ from QAOAKit.utils import (
     get_adjacency_matrix,
 )
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
+from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
+
 from qiskit_optimization import QuadraticProgram
 from qiskit.algorithms.minimum_eigen_solvers.qaoa import QAOAAnsatz
 
@@ -306,3 +308,9 @@ def test_no_save_state():
         .get_counts()
     )
     assert isinstance(counts, dict)
+
+
+def test_examples_erdos_renyi():
+    df = get_20_node_erdos_renyi_graphs()
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 30
