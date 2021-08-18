@@ -87,7 +87,7 @@ class LookupTableHandler:
             with open(
                 Path(
                     utils_folder,
-                    "../data/fixed-angle-2021-07/angles_regular_graphs.json",
+                    "../data/fixed-angle-2021-08/angles_regular_graphs.json",
                 )
             ) as json_file:
                 data = json.load(json_file)

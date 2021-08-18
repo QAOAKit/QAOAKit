@@ -253,7 +253,7 @@ def test_fixed_angles_3_reg():
         assert np.isclose(
             qaoa_maxcut_energy(row["G"], angles["beta"], angles["gamma"]),
             row["C_fixed"],
-            rtol=0.01,
+            rtol=1e-4,
         )
 
 
