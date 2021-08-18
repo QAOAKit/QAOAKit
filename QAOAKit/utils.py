@@ -483,47 +483,58 @@ def state_to_ampl_counts(vec, eps=1e-15):
     return counts
 
 
-def obj_from_statevector(sv, obj_f, precomputed=None):
+def obj_from_statevector(sv, obj_f):
     """Compute objective from Qiskit statevector
     For large number of qubits, this is slow.
-    To speed up for larger qubits, pass a vector of precomputed energies
-    for QAOA, precomputed should be the same as the diagonal of the cost Hamiltonian
     """
-    if precomputed is None:
-        adj_sv = get_adjusted_state(sv)
-        counts = state_to_ampl_counts(adj_sv)
-        assert np.isclose(sum(np.abs(v) ** 2 for v in counts.values()), 1)
-        return sum(
-            obj_f(np.array([int(x) for x in k])) * (np.abs(v) ** 2)
-            for k, v in counts.items()
-        )
-    else:
-        return np.dot(precomputed, np.abs(sv) ** 2)
+    qubit_dims = np.log2(sv.shape[0])
+    if qubit_dims % 1:
+        raise ValueError("Input vector is not a valid statevector for qubits.")
+    qubit_dims = int(qubit_dims)
+    # get bit strings for each element of the state vector
+    # https://stackoverflow.com/questions/22227595/convert-integer-to-binary-array-with-suitable-padding
+    bit_strings = (
+        ((np.array(range(sv.shape[0]))[:, None] & (1 << np.arange(qubit_dims)))) > 0
+    ).astype(int)
+
+    return sum(
+        obj_f(bit_strings[kk]) * (np.abs(sv[kk]) ** 2) for kk in range(sv.shape[0])
+    )
 
 
-def maxcut_obj(x, G):
+def maxcut_obj(x, w):
     """Compute the value of a cut.
+
     Args:
         x (numpy.ndarray): binary string as numpy array.
         w (numpy.ndarray): adjacency matrix.
+
     Returns:
         float: value of the cut.
     """
-    cut = 0
+    X = np.outer(x, (1 - x))
+    return np.sum(w * X)
+
+
+def get_adjacency_matrix(G):
+    n = G.number_of_nodes()
+    w = np.zeros([n, n])
+
     for e in G.edges():
-        if x[e[0]] != x[e[1]]:
-            if nx.is_weighted(G):
-                cut += G[e[0]][e[1]]["weight"]
-            else:
-                cut += 1
-    return cut
+        if nx.is_weighted(G):
+            w[e[0], e[1]] = G[e[0]][e[1]]["weight"]
+            w[e[1], e[0]] = G[e[0]][e[1]]["weight"]
+        else:
+            w[e[0], e[1]] = 1
+            w[e[1], e[0]] = 1
+    return w
 
 
 def qaoa_maxcut_energy(G, beta, gamma):
     """Computes MaxCut QAOA energy for graph G
     qaoa format (`angles_to_qaoa_format`) used for beta, gamma
     """
-    obj = partial(maxcut_obj, G=G)
+    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
     qc = get_maxcut_qaoa_circuit(G, beta, gamma)
     backend = AerSimulator(method="statevector")
     sv = backend.run(qc).result().get_statevector()
