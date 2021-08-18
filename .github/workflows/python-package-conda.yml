@@ -44,7 +44,8 @@ jobs:
     - name: test
       run: |
         pytest
-    - name: lint
+    - name: check linter
       run: |
-        pip install black
-        black . --check
+        pip install pre-commit
+        pre-commit install
+        pre-commit run --all-files
