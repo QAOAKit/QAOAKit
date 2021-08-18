@@ -1,5 +1,7 @@
 # Set of tools for manipulating the ORNL qaoa dataset
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 ### Example
 
 ```python
@@ -51,10 +53,14 @@ pytest
 
 If you have an issue like "Illegal Instruction (core dumped)", you may have to force pip to recompile Nauty binaries (`pip install --no-binary pynauty pynauty`) or install Nauty separately: https://pallini.di.uniroma1.it/
 
+You can set up the linter to run before every commit.
+```
+pip install pre-commit
+pre-commit install
+```
 
 ### TODO
 
 - [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
 - [ ] Add optimal parameters for a few larger instances to showcase the power of transferability (add `examples` folder?)
 - [ ] Libensemble example with multiprocessing that uses sampled points as initial guesses
-
