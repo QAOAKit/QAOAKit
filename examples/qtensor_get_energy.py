@@ -12,7 +12,7 @@ import numpy as np
 G = nx.star_graph(5)
 # grab optimal angles
 p = 3
-angles = angles_to_qtensor_format(opt_angles_for_graph(G,p))
+angles = angles_to_qtensor_format(opt_angles_for_graph(G, p))
 # use QTensor to find energy
-E = QAOA_energy(G, angles['gamma'], angles['beta'])
+E = QAOA_energy(G, angles["gamma"], angles["beta"])
 print(E)
