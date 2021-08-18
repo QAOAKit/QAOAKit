@@ -19,15 +19,7 @@ from .utils import load_results_file_into_dataframe, get_adjacency_dict
 
 build_tables_folder = Path(__file__).parent
 
-n_graphs = {
-    3: 2,
-    4: 6,
-    5: 21,
-    6: 112,
-    7: 853,
-    8: 11117,
-    9: 261080,
-}
+n_graphs = {3: 2, 4: 6, 5: 21, 6: 112, 7: 853, 8: 11117, 9: 261080}
 
 
 def load_data():
