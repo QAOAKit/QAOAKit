@@ -33,6 +33,7 @@ from QAOAKit.utils import (
     isomorphic,
     load_weights_into_dataframe,
     load_weighted_results_into_dataframe,
+    get_adjacency_matrix,
 )
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from qiskit_optimization import QuadraticProgram
@@ -80,7 +81,7 @@ def test_angle_conversion():
             df = full_qaoa_dataset_table.reset_index()
             df = df[(df["n"] == n_qubits) & (df["p_max"] == p)]
             for _, row in df.iterrows():
-                obj = partial(maxcut_obj, G=row["G"])
+                obj = partial(maxcut_obj, w=get_adjacency_matrix(row["G"]))
                 opt_cut = row["C_opt"]
                 angles = angles_to_qaoa_format(
                     opt_angles_for_graph(row["G"], row["p_max"])
