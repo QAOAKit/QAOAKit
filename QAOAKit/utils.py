@@ -8,6 +8,7 @@ from pathlib import Path
 from functools import partial
 from qiskit.providers.aer import AerSimulator
 import json
+import warnings
 
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit
 
@@ -175,18 +176,24 @@ def opt_angles_for_graph(G, p):
     elif nx.is_regular(G) and G.degree[0] == 3 and p <= 2:
         row = get_3_reg_dataset_table_row(G, p)
         return {"beta": row["beta"], "gamma": row["gamma"]}
+    elif nx.is_regular(G) and p <= 11:
+        d = G.degree[0]
+        warnings.warn(
+            f"Optimal angles not available, returning fixed angles for {d}-regular graphs"
+        )
+        return get_fixed_angles(d, p)
+    elif p <= 11:
+        warnings.warn("Optimal angles not available, returning closest fixed angles")
+        d_ave = int(round(2 * G.number_of_edges() / G.number_of_nodes()))
+        return get_fixed_angles(d_ave, p)
     else:
         raise NotImplementedError(
-            "Should return angles from fixed angle conjecture paper; TBD"
+            f"Parameters for p > 11 are not available; requested p = {p}"
         )
 
 
 def get_fixed_angles(d, p):
-    df = lookup_table_handler.get_fixed_angle_dataset_table()
-    row = df[(df["d"] == d) & (df["p"] == p)]
-    assert len(row) == 1
-    row = row.squeeze()
-    assert isinstance(row, pd.Series)
+    row = get_fixed_angle_dataset_table_row(d, p)
     angles = {"beta": row.beta, "gamma": row.gamma}
     return angles
 
@@ -197,6 +204,19 @@ def get_full_qaoa_dataset_table():
 
 def get_3_reg_dataset_table():
     return lookup_table_handler.get_3_reg_dataset_table()
+
+
+def get_fixed_angle_dataset_table():
+    return lookup_table_handler.get_fixed_angle_dataset_table()
+
+
+def get_fixed_angle_dataset_table_row(d, p):
+    df = lookup_table_handler.get_fixed_angle_dataset_table()
+    row = df[(df["d"] == d) & (df["p"] == p)]
+    assert len(row) == 1
+    row = row.squeeze()
+    assert isinstance(row, pd.Series)
+    return row
 
 
 def get_full_qaoa_dataset_table_row(G, p):
@@ -433,6 +453,28 @@ def load_weights_into_dataframe(folder_path):
                 }
                 lines.append(line_d)
     return pd.DataFrame(lines, columns=lines[0].keys())
+
+
+def brute_force(obj_f, num_variables):
+    """Get the maximum of a function by complete enumeration
+    Returns the maximum value and the extremizing bit string
+    """
+    best_cost_brute = float("-inf")
+    bit_strings = (
+        (
+            (
+                np.array(range(2 ** num_variables))[:, None]
+                & (1 << np.arange(num_variables))
+            )
+        )
+        > 0
+    ).astype(int)
+    for x in bit_strings:
+        cost = obj_f(np.array(x))
+        if cost > best_cost_brute:
+            best_cost_brute = cost
+            xbest_brute = x
+    return best_cost_brute, xbest_brute
 
 
 #############################

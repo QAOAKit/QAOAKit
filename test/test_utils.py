@@ -34,6 +34,8 @@ from QAOAKit.utils import (
     load_weights_into_dataframe,
     load_weighted_results_into_dataframe,
     get_adjacency_matrix,
+    brute_force,
+    get_fixed_angle_dataset_table_row,
 )
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
@@ -269,6 +271,39 @@ def test_get_opt_angles_large_3_reg():
             assert np.isclose(
                 row["C_opt"], qaoa_maxcut_energy(G, angles["beta"], angles["gamma"])
             )
+
+
+def test_brute_force():
+    n = 8
+    df = get_3_reg_dataset_table().reset_index()
+    df = df[(df["n"] == n) & (df["p_max"] == 1)]
+    for _, row in df.iterrows():
+        obj = partial(maxcut_obj, w=get_adjacency_matrix(row["G"]))
+        assert np.isclose(row["C_{true opt}"], brute_force(obj, n)[0])
+
+
+def test_get_opt_angles_k_reg():
+    n = 10
+    for d, max_p in [(3, 11), (4, 4)]:
+        for p in range(3, max_p + 1):
+            AR = get_fixed_angle_dataset_table_row(d, p).AR
+            for s in range(5):
+                G = nx.random_regular_graph(d, n, seed=s)
+                obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+                opt_en = brute_force(obj, n)[0]
+                with pytest.warns(
+                    Warning,
+                    match="Optimal angles not available, returning fixed angles",
+                ):
+                    angles = angles_to_qaoa_format(opt_angles_for_graph(G, p))
+                fixed_angle_en = qaoa_maxcut_energy(G, angles["beta"], angles["gamma"])
+                assert fixed_angle_en / opt_en >= AR
+
+
+def test_get_opt_angles_large_non_reg():
+    raise NotImplementedError(
+        "Test not implemented yet, should check that angles for non-regular graphs with n>9 are returned properly"
+    )
 
 
 def test_example_in_README():
