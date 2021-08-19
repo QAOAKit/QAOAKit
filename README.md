@@ -56,8 +56,11 @@ pytest
 
 If you have an issue like "Illegal Instruction (core dumped)", you may have to force pip to recompile Nauty binaries (`pip install --no-binary pynauty pynauty`) or install Nauty separately: https://pallini.di.uniroma1.it/
 
-You can set up the linter to run before every commit.
+#### Contributing
+
+You should set up the linter to run before every commit.
 ```
 pip install pre-commit
 pre-commit install
 ```
+Note that linter checks passing is a necessary condition for your contribution to be reviewed.
