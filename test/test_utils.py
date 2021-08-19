@@ -284,7 +284,7 @@ def test_brute_force():
 
 def test_get_opt_angles_k_reg():
     n = 10
-    for d, max_p in [(3, 11), (4, 4)]:
+    for d, max_p in [(3, 11), (4, 4), (5, 3)]:
         for p in range(3, max_p + 1):
             AR = get_fixed_angle_dataset_table_row(d, p).AR
             for s in range(5):
