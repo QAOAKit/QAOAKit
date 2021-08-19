@@ -1,4 +1,4 @@
-# Set of tools for manipulating the ORNL qaoa dataset
+# `QAOAKit`: A Toolkit for Reproducible Application and Verification of QAOA
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -30,9 +30,12 @@ Almost all counts you get should correspond to one of the two optimal MaxCut sol
 More advanced examples are available in `examples` folder:
 
 - Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): `examples/qtensor_get_energy.py`
+- Transfering parameters to large unseen instances: `examples/examples/Transferability to unseen instances.ipynb`
 
 
 ### Installation
+
+#### Install from source
 
 Optional: create an Anaconda environment
 
@@ -58,9 +61,3 @@ You can set up the linter to run before every commit.
 pip install pre-commit
 pre-commit install
 ```
-
-### TODO
-
-- [ ] Add Kernel Density Estimation to generate initial points (https://doi.org/10.1609/aaai.v34i03.5616)
-- [ ] Add optimal parameters for a few larger instances to showcase the power of transferability (add `examples` folder?)
-- [ ] Libensemble example with multiprocessing that uses sampled points as initial guesses
