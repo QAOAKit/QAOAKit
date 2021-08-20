@@ -24,6 +24,8 @@ from QAOAKit import (
     get_3_reg_dataset_table_row,
     get_full_qaoa_dataset_table_row,
     get_full_qaoa_dataset_table,
+    get_fixed_angle_dataset_table,
+    get_fixed_angle_dataset_table_row,
     qaoa_maxcut_energy,
     angles_from_qiskit_format,
 )
@@ -35,7 +37,6 @@ from QAOAKit.utils import (
     load_weighted_results_into_dataframe,
     get_adjacency_matrix,
     brute_force,
-    get_fixed_angle_dataset_table_row,
 )
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
@@ -260,6 +261,21 @@ def test_fixed_angles_3_reg():
             row["C_fixed"],
             rtol=1e-4,
         )
+
+
+def test_fixed_angles_all():
+    df = get_fixed_angle_dataset_table()
+    n = 12
+
+    for _, row in df.iterrows():
+        beta = beta_to_qaoa_format(row["beta"])
+        gamma = gamma_to_qaoa_format(row["gamma"])
+        for s in range(5):
+            G = nx.random_regular_graph(row["d"], n, seed=s)
+            obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+            opt_en = brute_force(obj, n)[0]
+            fixed_angle_en = qaoa_maxcut_energy(G, beta, gamma)
+            assert fixed_angle_en / opt_en >= row["AR"]
 
 
 def test_get_opt_angles_large_3_reg():
