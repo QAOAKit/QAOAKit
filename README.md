@@ -1,6 +1,8 @@
 # `QAOAKit`: A Toolkit for Reproducible Application and Verification of QAOA
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![Build](https://github.com/QAOAKit/QAOAKit/actions/workflows/python-package-conda.yml/badge.svg)
+
 
 ### Example
 
@@ -30,7 +32,8 @@ Almost all counts you get should correspond to one of the two optimal MaxCut sol
 More advanced examples are available in `examples` folder:
 
 - Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): `examples/qtensor_get_energy.py`
-- Transfering parameters to large unseen instances: `examples/examples/Transferability to unseen instances.ipynb`
+- Transfering parameters to large unseen instances: `examples/Transferability to unseen instances.ipynb`
+- Tackling open problems in quantum optimization: `examples/Tackling open problems.ipynb`
 
 
 ### Installation
