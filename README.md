@@ -38,9 +38,7 @@ More advanced examples are available in `examples` folder:
 
 ### Installation
 
-#### Install from source
-
-Optional: create an Anaconda environment
+Recommended: create an Anaconda environment
 
 ```
 conda create -n qaoa python=3
@@ -48,6 +46,14 @@ conda activate qaoa
 ```
 
 Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
+
+```
+pip install QAOAKit
+python -m QAOAKit.build_tables
+```
+
+#### Install from source
+
 
 ```
 git clone https://github.com/QAOAKit/QAOAKit.git
