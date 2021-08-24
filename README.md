@@ -3,6 +3,21 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![Tests](https://github.com/QAOAKit/QAOAKit/actions/workflows/python-package-conda.yml/badge.svg)
 
+### Installation
+
+Recommended: create an Anaconda environment
+
+```
+conda create -n qaoa python=3
+conda activate qaoa
+```
+
+Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
+
+```
+pip install QAOAKit
+python -m QAOAKit.build_tables
+```
 
 ### Example
 
@@ -35,19 +50,7 @@ More advanced examples are available in `examples` folder:
 - Transfering parameters to large unseen instances: `examples/Transferability to unseen instances.ipynb`
 - Tackling open problems in quantum optimization: `examples/Tackling open problems.ipynb`
 
-
-### Installation
-
-#### Install from source
-
-Optional: create an Anaconda environment
-
-```
-conda create -n qaoa python=3
-conda activate qaoa
-```
-
-Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
+### Install from source
 
 ```
 git clone https://github.com/QAOAKit/QAOAKit.git
