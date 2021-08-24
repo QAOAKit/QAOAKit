@@ -1,9 +1,19 @@
 from setuptools import setup
 
+# read the contents of README file
+from os import path
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
+
 setup(
     name="QAOAKit",
-    version="0.1.7",
+    version="0.1.8",
     description="A Toolkit for Reproducible Study, Application and Verification of QAOA",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Ruslan Shaydulin",
     author_email="ruslan@shaydul.in",
     python_requires=">=3, <4",
