@@ -2,8 +2,8 @@ from setuptools import setup
 
 setup(
     name="QAOAKit",
-    version="0.1.6",
-    description="Tools for using the pre-optimized parameters from ORNL dataset (and more)",
+    version="0.1.7",
+    description="A Toolkit for Reproducible Study, Application and Verification of QAOA",
     author="Ruslan Shaydulin",
     author_email="ruslan@shaydul.in",
     python_requires=">=3, <4",
