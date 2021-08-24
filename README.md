@@ -12,7 +12,7 @@ conda create -n qaoa python=3
 conda activate qaoa
 ```
 
-Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory.
+Note that current implementation requires significant amounts of RAM (~5GB) as it loads the entire dataset into memory. Linux and macOS are currently supported.
 
 ```
 pip install QAOAKit
