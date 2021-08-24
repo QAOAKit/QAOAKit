@@ -46,9 +46,9 @@ Almost all counts you get should correspond to one of the two optimal MaxCut sol
 
 More advanced examples are available in `examples` folder:
 
-- Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): `examples/qtensor_get_energy.py`
-- Transferring parameters to large unseen instances: `examples/Transferability to unseen instances.ipynb`
-- Tackling open problems in quantum optimization: `examples/Tackling open problems.ipynb`
+- Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): [`examples/qtensor_get_energy.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/qtensor_get_energy.py)
+- Transferring parameters to large unseen instances: [`examples/Transferability to unseen instances.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/Transferability%20to%20unseen%20instances.ipynb)
+- Tackling open problems in quantum optimization: [`examples/Tackling open problems.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/Tackling%20open%20problems.ipynb)
 
 ### Install from source
 
