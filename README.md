@@ -54,7 +54,6 @@ python -m QAOAKit.build_tables
 
 #### Install from source
 
-
 ```
 git clone https://github.com/QAOAKit/QAOAKit.git
 cd QAOAKit
