@@ -326,12 +326,16 @@ def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
     return copy.deepcopy(G)
 
 
-def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
+def load_weighted_results_into_dataframe(
+    folder_path, p, nqubits, df_weights, negative_weights=False
+):
     """Loads all result files from ../data/weighted_angle_dat/{p}
     df_weights is a dataframe mapping graph_id and weight_id to list of weights
     The column names and conventions are described in ../data/weighted_angle_dat/Readme.txt
     One column is added:
     p_max : maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+
+    for dataframes with negative weights (negative_weights=True), two extra columns are added: mean(abs(weight)) and std(abs(weight))
     """
     colnames = [
         "graph_id",
@@ -348,6 +352,9 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
         colnames.append(f"gamma_{i}/pi")
     colnames.append("mean(weight)")
     colnames.append("std(weight)")
+    if negative_weights:
+        colnames.append("mean(abs(weight))")
+        colnames.append("std(abs(weight))")
     dfs = []
     for fname in folder_path.glob("QAOA_dat_weighted_*"):
         dfs.append(
@@ -390,6 +397,34 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
             atol=1e-07,
         )
         | np.isnan(df["std(weight)"])
+    )
+
+    assert np.all(
+        np.isclose(
+            df.apply(
+                lambda row: np.mean(
+                    [np.abs(x[2]["weight"]) for x in row["G"].edges(data=True)]
+                ),
+                axis=1,
+            ),
+            df["mean(abs(weight))"],
+            atol=1e-07,
+        )
+        | np.isnan(df["mean(abs(weight))"])
+    )
+
+    assert np.all(
+        np.isclose(
+            df.apply(
+                lambda row: np.std(
+                    [np.abs(x[2]["weight"]) for x in row["G"].edges(data=True)]
+                ),
+                axis=1,
+            ),
+            df["std(abs(weight))"],
+            atol=1e-07,
+        )
+        | np.isnan(df["std(abs(weight))"])
     )
 
     assert np.all(
