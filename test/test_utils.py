@@ -240,12 +240,13 @@ def test_3_reg_table():
         )
 
     # test that the optima match the full qaoa table
-    for _, row in df[(df["p_max"] == 1) | (df["p_max"] == 2)].head(50).iterrows():
-        G = row["G"]
-        angles = angles_to_qaoa_format({"beta": row["beta"], "gamma": row["gamma"]})
-        assert np.isclose(
-            qaoa_maxcut_energy(G, angles["beta"], angles["gamma"]), row["C_opt"]
-        )
+    for _, row in (
+        df[((df["p_max"] == 1) | (df["p_max"] == 2)) & (df["n"] < 9)]
+        .head(50)
+        .iterrows()
+    ):
+        full_row = get_full_qaoa_dataset_table_row(row["G"], row["p_max"])
+        assert np.isclose(full_row["C_opt"], row["C_opt"])
 
 
 def test_fixed_angles_3_reg():
