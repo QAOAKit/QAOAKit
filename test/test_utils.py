@@ -35,6 +35,10 @@ from QAOAKit.utils import (
     load_weighted_results_into_dataframe,
     get_adjacency_matrix,
 )
+from QAOAKit.gw import (
+    goemans_williamson,
+    goemans_williamson2,
+)
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
 
@@ -315,3 +319,16 @@ def test_examples_erdos_renyi():
     df = get_20_node_erdos_renyi_graphs()
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 30
+
+
+def test_gw():
+    df = get_3_reg_dataset_table().reset_index()
+    df = df[df["p_max"] == 1]
+
+    def check_gw(G):
+        colors1 = goemans_williamson(G, nsamples=100)
+        score1 = (maxcut_obj(colors1, w=get_adjacency_matrix(G)),)
+        colors2, score2, bound2 = goemans_williamson2(G)
+        assert np.isclose(maxcut_obj(colors2, w=get_adjacency_matrix(G)), score2)
+
+    df.head(5).apply(lambda row: check_gw(row["G"]), axis=1)
