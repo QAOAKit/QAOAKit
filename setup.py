@@ -28,6 +28,7 @@ setup(
         "numpy",
         "pytest",
         "tqdm",
+        "cvxgraphalgs",
     ],
     zip_safe=True,
 )
