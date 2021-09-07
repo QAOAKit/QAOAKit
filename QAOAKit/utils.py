@@ -97,12 +97,13 @@ class LookupTableHandler:
             for d in data.keys():
                 for p in data[d]:
                     if int(p) < 12:  # remove bad value at p=12
-                        angles = [float(x) for x in data[d][p]["angles"]]
+                        gamma = [float(x) for x in data[d][p]["gamma"]]
+                        beta = [float(x) for x in data[d][p]["beta"]]
                         line_d = {
                             "d": int(d),
                             "p": int(p),
-                            "gamma": np.array(angles[: int(p)]) / np.pi,
-                            "beta": np.array(angles[int(p) :]) / np.pi,
+                            "gamma": np.array(gamma) / np.pi,
+                            "beta": np.array(beta) / np.pi,
                             "AR": float(data[d][p]["AR"]),
                         }
                         lines.append(line_d)

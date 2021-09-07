@@ -317,9 +317,13 @@ def test_get_opt_angles_k_reg():
 
 
 def test_get_opt_angles_large_non_reg():
-    raise NotImplementedError(
-        "Test not implemented yet, should check that angles for non-regular graphs with n>9 are returned properly"
-    )
+    G = nx.lollipop_graph(5, 10)
+    assert G.number_of_nodes() > 10
+    with pytest.warns(
+        Warning,
+        match="Optimal angles not available, returning closest fixed angles",
+    ):
+        angles = angles_to_qaoa_format(opt_angles_for_graph(G, 2))
 
 
 def test_example_in_README():
