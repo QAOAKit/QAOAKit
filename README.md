@@ -25,6 +25,8 @@ print(backend.run(qc).result().get_counts())
 
 Almost all counts you get should correspond to one of the two optimal MaxCut solutions for star graph: `000001` or `111110`.
 
+For graphs where no pre-optimized angles are available, the angles from "The fixed angle conjecture for QAOA on regular MaxCut graphs" ([arXiv:2107.00677](https://scirate.com/arxiv/2107.00677)) will be returned.
+
 ### Advanced usage
 
 More advanced examples are available in `examples` folder:
