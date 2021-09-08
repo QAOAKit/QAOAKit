@@ -51,7 +51,7 @@ More advanced examples are available in `examples` folder:
 - Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): [`examples/qtensor_get_energy.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/qtensor_get_energy.py)
 - Transferring parameters to large unseen instances: [`examples/Transferability to unseen instances.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/Transferability%20to%20unseen%20instances.ipynb)
 - Tackling open problems in quantum optimization: [`examples/Tackling open problems.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/Tackling%20open%20problems.ipynb)
-- Comparing QAOA with classical algorithms for MaxCut: [`examples/classical_algorithms.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/classical_algorithms.py)
+- Comparing QAOA with classical algorithms for MaxCut: [`examples/classical_algorithms.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/classical_algorithms_vs_qaoa.py)
 
 ### Install from source
 
