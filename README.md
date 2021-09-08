@@ -42,6 +42,8 @@ print(backend.run(qc).result().get_counts())
 
 Almost all counts you get should correspond to one of the two optimal MaxCut solutions for star graph: `000001` or `111110`.
 
+For graphs where no pre-optimized angles are available, the angles from "The fixed angle conjecture for QAOA on regular MaxCut graphs" ([arXiv:2107.00677](https://scirate.com/arxiv/2107.00677)) will be returned.
+
 ### Advanced usage
 
 More advanced examples are available in `examples` folder:
@@ -62,8 +64,11 @@ pytest
 
 If you have an issue like "Illegal Instruction (core dumped)", you may have to force pip to recompile Nauty binaries (`pip install --no-binary pynauty pynauty`) or install Nauty separately: https://pallini.di.uniroma1.it/
 
-You can set up the linter to run before every commit.
+#### Contributing
+
+You should set up the linter to run before every commit.
 ```
 pip install pre-commit
 pre-commit install
 ```
+Note that linter checks passing is a necessary condition for your contribution to be reviewed.

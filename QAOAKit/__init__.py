@@ -13,5 +13,7 @@ from .utils import (
     get_full_qaoa_dataset_table,
     get_3_reg_dataset_table,
     get_3_reg_dataset_table_row,
+    get_fixed_angle_dataset_table,
+    get_fixed_angle_dataset_table_row,
     qaoa_maxcut_energy,
 )
