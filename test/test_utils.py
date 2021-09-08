@@ -35,9 +35,10 @@ from QAOAKit.utils import (
     load_weighted_results_into_dataframe,
     get_adjacency_matrix,
 )
-from QAOAKit.gw import (
+from QAOAKit.classical import (
     goemans_williamson,
     goemans_williamson2,
+    thompson_parekh_marwaha,
 )
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
@@ -332,3 +333,12 @@ def test_gw():
         assert np.isclose(maxcut_obj(colors2, w=get_adjacency_matrix(G)), score2)
 
     df.head(5).apply(lambda row: check_gw(row["G"]), axis=1)
+
+
+def test_tpm():
+    G = nx.random_regular_graph(3, 1000, seed=42)
+
+    soln, exp_round = thompson_parekh_marwaha(G, nsamples=100, girth=100)
+    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    vals = [obj(x) / G.number_of_edges() for x in soln]
+    assert np.isclose(np.average(vals), exp_round, atol=0.01)
