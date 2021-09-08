@@ -45,3 +45,5 @@ python -m QAOAKit.build_tables
 python -c 'from QAOAKit import opt_angles_for_graph; import networkx as nx; print(opt_angles_for_graph(nx.star_graph(5), 2))'
 conda deactivate
 ```
+
+Don't forget to get it as a release!
