@@ -170,11 +170,11 @@ def get_graph_from_id(graph_id, nqubits):
 
 
 def opt_angles_for_graph(G, p):
-    if (G.number_of_nodes() <= 9) and (p <= 3):
+    if G.number_of_nodes() <= 9 and p <= 3:
         graph2angles = lookup_table_handler.get_graph2angles()
         graph_id = get_graph_id(G)
         return copy.deepcopy(graph2angles[G.number_of_nodes()][p][graph_id])
-    elif nx.is_regular(G) and G.degree[0] == 3 and p <= 2:
+    elif nx.is_regular(G) and G.number_of_nodes() <= 16 and G.degree[0] == 3 and p <= 2:
         row = get_3_reg_dataset_table_row(G, p)
         return {"beta": row["beta"], "gamma": row["gamma"]}
     elif nx.is_regular(G) and p <= 11:
