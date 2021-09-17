@@ -372,7 +372,13 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
     dfs = []
     for fname in folder_path.glob("QAOA_dat_weighted_*"):
         dfs.append(
-            pd.read_csv(fname, delim_whitespace=True, names=colnames, header=None)
+            pd.read_csv(
+                fname,
+                delim_whitespace=True,
+                usecols=list(range(len(colnames))),
+                names=colnames,
+                header=None,
+            )
         )
     df = pd.concat(dfs)
     df[
