@@ -273,6 +273,12 @@ def build_3_reg_dataset():
                 d["C_opt"] = row[str(p)]["optimized_val"]
                 d["beta"] = np.array(row[str(p)]["angles"][0]["beta"]) / np.pi
                 d["gamma"] = -2 * np.array(row[str(p)]["angles"][0]["gamma"]) / np.pi
+                d["all beta (degenerate optima)"] = [
+                    np.array(x["beta"]) / np.pi for x in row[str(p)]["angles"]
+                ]
+                d["all gamma (degenerate optima)"] = [
+                    -2 * np.array(x["gamma"]) / np.pi for x in row[str(p)]["angles"]
+                ]
                 d["theta"] = np.hstack([d["gamma"], d["beta"]])
             rows.append(copy.deepcopy(d))
 
