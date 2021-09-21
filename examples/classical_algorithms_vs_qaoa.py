@@ -3,6 +3,7 @@ Computing solutions from classical algorithms and comparing them to QAOA
 """
 
 import networkx as nx
+import numpy as np
 from functools import partial
 from qtensor import QAOA_energy
 
@@ -17,30 +18,40 @@ from QAOAKit.utils import (
 )
 
 from QAOAKit.classical import (
-    goemans_williamson,
     thompson_parekh_marwaha,
 )
+
+from QAOAKit.qiskit_interface import goemans_williamson
+
+
+import time
 
 # get random graph
 G = nx.random_regular_graph(3, 100, seed=42)
 obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
 
 # solution 1: Goemans-Williamson
-sol_gw = goemans_williamson(G, nsamples=10)
-print(f"GW cut {obj(sol_gw)}")
+t0 = time.time()
+soln = goemans_williamson(G, nsamples=100)
+t1 = time.time()
+print(f"GW finished in {t1-t0:.2f} sec")
+print(f"GW cut {obj(soln[0])}")
+scores = [obj(x) for x in soln]
+print(f"GW mean cut {np.mean(scores):.2f}")
+print(f"GW best cut {np.max(scores)}")
 
 # solution 2: An explicit vector algorithm for high-girth MaxCut
 # https://scirate.com/arxiv/2108.12477
 
+t0 = time.time()
 soln, exp_round = thompson_parekh_marwaha(G, nsamples=100, girth=10)
+t1 = time.time()
+print(f"TMP finished in {t1-t0:.2f} sec")
+scores = [obj(x) for x in soln]
 
-# pick best of sample
-best_score = float("-inf")
-for x in soln:
-    score = obj(x)
-    if score > best_score:
-        best_score = score
-print(f"TPM cut: {best_score}")
+print(f"TPM best cut: {np.max(scores)}")
+print(f"TPM mean cut {np.mean(scores):.2f}")
+print(f"TPM expectation: {exp_round*G.number_of_edges():.2f}")
 
 # solution 3: QAOA with p=3
 
