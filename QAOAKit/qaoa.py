@@ -3,8 +3,6 @@
 import networkx as nx
 from qiskit import QuantumCircuit, Aer, execute
 from qiskit.compiler import transpile
-from qiskit_optimization import QuadraticProgram
-from qiskit.algorithms.minimum_eigen_solvers.qaoa import QAOAAnsatz
 import numpy as np
 
 
@@ -55,24 +53,3 @@ def get_maxcut_qaoa_circuit(G, beta, gamma, transpile_to_basis=True, save_state=
     if save_state:
         qc.save_state()
     return qc
-
-
-def get_maxcut_qaoa_qiskit_circuit(G, p, qiskit_angles):
-    """
-    Constructs a max cut QAOA circuit with Qiskit.
-
-    Returns (quantum circuit, cost operator, cut size offset).
-    On average, the circuit gives max cut size proportional to -(<C> + offset)
-    """
-    n_qubits = len(G.nodes())
-    problem = QuadraticProgram()
-    _ = [problem.binary_var("x{}".format(i)) for i in range(n_qubits)]
-    problem.maximize(
-        linear=nx.adjacency_matrix(G).dot(np.ones(n_qubits)),
-        quadratic=-nx.adjacency_matrix(G),
-    )
-    C, offset = problem.to_ising()
-    ansatz = QAOAAnsatz(C, p).decompose()
-    qc = ansatz.bind_parameters(qiskit_angles)
-    qc.save_state()
-    return qc, C, offset

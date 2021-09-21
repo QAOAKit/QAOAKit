@@ -39,11 +39,10 @@ from QAOAKit.utils import (
     brute_force,
 )
 from QAOAKit.classical import (
-    goemans_williamson,
-    goemans_williamson2,
     thompson_parekh_marwaha,
 )
-from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
+from QAOAKit.qaoa import get_maxcut_qaoa_circuit
+from QAOAKit.qiskit_interface import get_maxcut_qaoa_qiskit_circuit, goemans_williamson
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
 
 from qiskit_optimization import QuadraticProgram
@@ -381,13 +380,18 @@ def test_gw():
     df = get_3_reg_dataset_table().reset_index()
     df = df[df["p_max"] == 1]
 
-    def check_gw(G):
-        colors1 = goemans_williamson(G, nsamples=100)
-        score1 = (maxcut_obj(colors1, w=get_adjacency_matrix(G)),)
-        colors2, score2, bound2 = goemans_williamson2(G)
-        assert np.isclose(maxcut_obj(colors2, w=get_adjacency_matrix(G)), score2)
+    def check_gw(G, QAOA_val, true_opt_val):
+        nsamples = 100
+        soln = goemans_williamson(G, nsamples=nsamples)
+        obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+        scores = [obj(x) for x in soln]
+        assert len(soln) == nsamples
+        assert np.max(scores) >= QAOA_val
+        assert np.max(scores) <= true_opt_val
 
-    df.head(5).apply(lambda row: check_gw(row["G"]), axis=1)
+    df.head(5).apply(
+        lambda row: check_gw(row["G"], row["C_opt"], row["C_{true opt}"]), axis=1
+    )
 
 
 def test_tpm():
