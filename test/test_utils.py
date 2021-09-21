@@ -43,7 +43,8 @@ from QAOAKit.classical import (
     goemans_williamson2,
     thompson_parekh_marwaha,
 )
-from QAOAKit.qaoa import get_maxcut_qaoa_circuit, get_maxcut_qaoa_qiskit_circuit
+from QAOAKit.qaoa import get_maxcut_qaoa_circuit
+from QAOAKit.qiskit_interface import get_maxcut_qaoa_qiskit_circuit
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
 
 from qiskit_optimization import QuadraticProgram
