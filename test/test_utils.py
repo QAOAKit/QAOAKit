@@ -256,6 +256,21 @@ def test_3_reg_table():
         assert np.isclose(full_row["C_opt"], row["C_opt"])
 
 
+def test_3_reg_degenerate_optima():
+    df = get_3_reg_dataset_table().reset_index()
+    for p in [1, 2]:
+        for _, row in df[df["p_max"] == p].head(10).iterrows():
+            for beta, gamma in zip(
+                row["all beta (degenerate optima)"],
+                row["all gamma (degenerate optima)"],
+            ):
+                angles = angles_to_qaoa_format({"beta": beta, "gamma": gamma})
+                assert np.isclose(
+                    qaoa_maxcut_energy(row["G"], angles["beta"], angles["gamma"]),
+                    row["C_opt"],
+                )
+
+
 def test_fixed_angles_3_reg():
     df = get_3_reg_dataset_table().sample(n=10).reset_index()
 

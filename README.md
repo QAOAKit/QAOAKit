@@ -53,6 +53,7 @@ More advanced examples are available in `examples` folder:
 - Tackling open problems in quantum optimization: [`examples/Tackling open problems.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/Tackling%20open%20problems.ipynb)
 - Exploring the performance of QAOA on small graphs as a function of average degree: [`examples/performance.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/performance.ipynb)
 - Comparing QAOA with classical algorithms for MaxCut: [`examples/classical_algorithms.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/classical_algorithms_vs_qaoa.py)
+- Clustering degenerate QAOA angles: [`examples/degenerate_optima_in_angle_space.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/degenerate_optima_in_angle_space.py)
 
 ### Install from source
 
