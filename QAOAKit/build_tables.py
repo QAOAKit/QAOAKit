@@ -59,11 +59,9 @@ def build_graph2angles():
             for index, data in df.iterrows():
                 if data["p"] != p:
                     assert np.isclose(data["C_{true opt}"], data["C_opt"])
-                beta = [data[f"beta_{i}/pi"] for i in range(p)]
-                gamma = [data[f"gamma_{i}/pi"] for i in range(p)]
                 tables[n_qubits][p][int(index)] = {
-                    "beta": copy.deepcopy(beta),
-                    "gamma": copy.deepcopy(gamma),
+                    "beta": data["beta"],
+                    "gamma": data["gamma"],
                 }
 
     pickle.dump(
@@ -195,7 +193,6 @@ def build_full_qaoa_dataset():
         index: 'pynauty_cert'+p (??)
         columns: [
             'pynauty_cert','graph_id','#nodes','C_{true opt}','C_init','C_opt','pr(max)','p','beta','gamma',
-            'theta', # concatenated gamma,beta: theta[idx] = gamma_idx, theta[p+idx] = beta_idx
             'p_max', # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
             ]
     """
@@ -222,15 +219,6 @@ def build_full_qaoa_dataset():
                 .merge(graph_id2graph, how="outer", right_index=True, left_index=True)
             )
             assert len(df_orig) == n_graphs[n_qubits]
-            df_orig["beta"] = df_orig.apply(
-                lambda row: [row[f"beta_{i}/pi"] for i in range(p)], axis=1
-            )
-            df_orig["gamma"] = df_orig.apply(
-                lambda row: [row[f"gamma_{i}/pi"] for i in range(p)], axis=1
-            )
-            df_orig["theta"] = df_orig.apply(
-                lambda row: row["gamma"] + row["beta"], axis=1
-            )
             df_orig["n"] = df_orig.apply(lambda row: row["G"].number_of_nodes(), axis=1)
             assert (df_orig["n"] == n_qubits).all()
             df = df.append(df_orig.reset_index())

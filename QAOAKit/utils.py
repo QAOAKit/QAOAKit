@@ -304,8 +304,10 @@ def angles_to_qtensor_format(angles):
 def load_results_file_into_dataframe(n_qubits, p):
     """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
     Column names are from ../data/qaoa-dataset-version1/Results/How_to_read_data_columns.txt
-    One column is added:
+    Columns added:
     p_max : maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+    beta : concatenated beta_i
+    gamma : concatenated gamma_i
     """
     colnames = ["graph_id", "C_{true opt}", "C_init", "C_opt", "pr(max)", "p"]
     for i in range(p):
@@ -320,13 +322,30 @@ def load_results_file_into_dataframe(n_qubits, p):
         delim_whitespace=True,
         names=colnames,
         header=None,
-        index_col="graph_id",
     )
     df[
         "p_max"
     ] = p  # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
+    df["beta"] = df.apply(
+        lambda row: np.array([row[f"beta_{i}/pi"] for i in range(p)]), axis=1
+    )
+    df["gamma"] = df.apply(
+        lambda row: np.array([row[f"gamma_{i}/pi"] for i in range(p)]), axis=1
+    )
     assert (df["p_max"] >= df["p"]).all()
-    return df
+    return df[
+        [
+            "graph_id",
+            "C_{true opt}",
+            "C_init",
+            "C_opt",
+            "pr(max)",
+            "p",
+            "p_max",
+            "beta",
+            "gamma",
+        ]
+    ].set_index("graph_id")
 
 
 def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
@@ -386,7 +405,6 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
     ] = p  # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
     df["beta"] = df.apply(lambda row: [row[f"beta_{i}/pi"] for i in range(p)], axis=1)
     df["gamma"] = df.apply(lambda row: [row[f"gamma_{i}/pi"] for i in range(p)], axis=1)
-    df["theta"] = df.apply(lambda row: row["gamma"] + row["beta"], axis=1)
     df["G"] = df.apply(
         lambda row: get_graph_and_assign_weights(
             row["graph_id"], row["weight_id"], nqubits, df_weights
