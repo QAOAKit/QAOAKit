@@ -15,15 +15,15 @@ Compute typical degenerate optima for 3 regular QAOA on the ensemble of all 3 re
 tab = get_3_reg_dataset_table().reset_index()
 
 # Get the degenerate angles
-p1_degenerate_gamma = np.stack(
-    tab[tab["p_max"] == 1]["all gamma (degenerate optima)"].to_numpy()
+p1_degenerate_gamma = (
+    np.stack(tab[tab["p_max"] == 1]["all gamma (degenerate optima)"].to_numpy()) % 2
 )
 p1_degenerate_beta = (
     np.stack(tab[tab["p_max"] == 1]["all beta (degenerate optima)"].to_numpy()) % 0.5
 )
 
-p2_degenerate_gamma = np.stack(
-    tab[tab["p_max"] == 2]["all gamma (degenerate optima)"].to_numpy()
+p2_degenerate_gamma = (
+    np.stack(tab[tab["p_max"] == 2]["all gamma (degenerate optima)"].to_numpy()) % 2
 )
 p2_degenerate_beta = (
     np.stack(tab[tab["p_max"] == 2]["all beta (degenerate optima)"].to_numpy()) % 0.5
