@@ -358,7 +358,10 @@ def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
             & (df_weights["weight_id"] == weight_id)
         ]["weights"]
     )
-    assert len(weights) == 1
+    if len(weights) != 1:
+        raise ValueError(
+            f"For graph_id={graph_id}, weight_id={weight_id} found unexpected number ({len(weights)}) weights"
+        )
     weights = weights[0]
     G = get_graph_from_id(graph_id, nqubits)
     for u, v, attr_dict in G.edges(data=True):

@@ -15,19 +15,25 @@ Compute typical degenerate optima for 3 regular QAOA on the ensemble of all 3 re
 tab = get_3_reg_dataset_table().reset_index()
 
 # Get the degenerate angles
-p1_degenerate_gamma = (
-    np.stack(tab[tab["p_max"] == 1]["all gamma (degenerate optima)"].to_numpy()) % 2
+p1_degenerate_gamma = np.stack(
+    tab[tab["p_max"] == 1]["all gamma (degenerate optima)"].to_numpy()
 )
-p1_degenerate_beta = (
-    np.stack(tab[tab["p_max"] == 1]["all beta (degenerate optima)"].to_numpy()) % 0.5
+p1_degenerate_beta = np.stack(
+    tab[tab["p_max"] == 1]["all beta (degenerate optima)"].to_numpy()
 )
 
-p2_degenerate_gamma = (
-    np.stack(tab[tab["p_max"] == 2]["all gamma (degenerate optima)"].to_numpy()) % 2
+p2_degenerate_gamma = np.stack(
+    tab[tab["p_max"] == 2]["all gamma (degenerate optima)"].to_numpy()
 )
-p2_degenerate_beta = (
-    np.stack(tab[tab["p_max"] == 2]["all beta (degenerate optima)"].to_numpy()) % 0.5
+p2_degenerate_beta = np.stack(
+    tab[tab["p_max"] == 2]["all beta (degenerate optima)"].to_numpy()
 )
+
+#
+p1_degenerate_gamma = (p1_degenerate_gamma + 1) % 2 - 1
+p2_degenerate_gamma = (p2_degenerate_gamma + 1) % 2 - 1
+p1_degenerate_beta = (p1_degenerate_beta + 0.25) % 0.5 - 0.25
+p2_degenerate_beta = (p2_degenerate_beta + 0.25) % 0.5 - 0.25
 
 # Sanity check
 assert p1_degenerate_gamma.shape == (4681, 4, 1)
@@ -60,28 +66,40 @@ plt.figure(figsize=(8, 6))
 plt.subplots_adjust(left=0.15, right=0.85, bottom=0.15)
 ax = plt.subplot(1, 1, 1)
 
-plt.scatter(p1_thetas[:, 0], p1_thetas[:, 1], c=skl1.labels_, s=10, edgecolors="None")
+plt.scatter(
+    p1_thetas[:, 0],
+    p1_thetas[:, 1],
+    c=skl1.labels_,
+    s=10,
+    edgecolors="None",
+    rasterized=True,
+)
 plt.scatter(
     skl1.cluster_centers_[:, 0], skl1.cluster_centers_[:, 1], c="r", s=500, marker="+"
 )
 
 plt.xlabel("$\\beta/\\pi$")
 plt.ylabel("$\\gamma/\\pi$")
-plt.axis([0, 0.5, 0, 2])
+plt.axis([-0.25, 0.25, -1, 1])
 plt.savefig("p=1_optima.pdf")
 plt.savefig("p=1_optima.png")
 
 
 # p=2 has 4 axes, so we project along 6 orthogonal planes
 labels = ["$\\beta_1/\\pi$", "$\\beta_2/\\pi$", "$\\gamma_1/\\pi$", "$\\gamma_2/\\pi$"]
-axees = [[0, 0.5], [0, 0.5], [0, 2], [0, 2]]
+axees = [[-0.25, 0.25], [-0.25, 0.25], [-1, 1], [-1, 1]]
 for i0 in range(4):
     for i1 in range(i0 + 1, 4):
         plt.figure(figsize=(8, 6))
         plt.subplots_adjust(left=0.15, right=0.85, bottom=0.15)
         ax = plt.subplot(1, 1, 1)
         plt.scatter(
-            p2_thetas[:, i0], p2_thetas[:, i1], c=skl2.labels_, s=10, edgecolors="None"
+            p2_thetas[:, i0],
+            p2_thetas[:, i1],
+            c=skl2.labels_,
+            s=10,
+            edgecolors="None",
+            rasterized=True,
         )
         plt.scatter(
             skl2.cluster_centers_[:, i0],
