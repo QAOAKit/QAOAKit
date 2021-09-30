@@ -49,7 +49,7 @@ For graphs where no pre-optimized angles are available, the angles from "The fix
 More advanced examples are available in `examples` folder:
 
 - Using optimal parameters in state-of-the-art tensor network QAOA simulator [QTensor](https://github.com/danlkv/QTensor): [`examples/qtensor_get_energy.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/qtensor_get_energy.py)
-- Transferring parameters to large unseen instances: [`examples/Transferability to unseen instances.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/Transferability%20to%20unseen%20instances.ipynb)
+- Transferring parameters to large unseen instances: [`examples/Transferability_to_unseen_instances.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/Transferability_to_unseen_instances.ipynb)
 - Exploring the role of problem structure in QAOA performance [`examples/QAOA_symmetry_and_performance.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/QAOA_symmetry_and_performance.ipynb)
 - Exploring the performance of QAOA on small graphs as a function of average degree: [`examples/performance.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/performance.ipynb)
 - Running classical algorithms for MaxCut: [`examples/classical_algorithms.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/classical_algorithms_vs_qaoa.py)
