@@ -1,6 +1,13 @@
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+
+from matplotlib import rc
+
+rc("font", **{"family": "serif", "serif": ["Times"]})
+rc("text", usetex=True)
+
+import seaborn as sns
 import sklearn.cluster
 from QAOAKit import get_3_reg_dataset_table
 
@@ -59,11 +66,10 @@ skl2.fit(p2_thetas)
 """
 Visualize clustering
 """
-
 # p=1 only has two axes
-plt.rcParams.update({"font.size": 16})
-plt.figure(figsize=(8, 6))
-plt.subplots_adjust(left=0.15, right=0.85, bottom=0.15)
+# plt.rcParams.update({"font.size": 16})
+plt.figure(figsize=(1.5 * 6.92654 / 2, 6.92654 / 2), dpi=500)
+# plt.subplots_adjust(left=0.15, right=0.85, bottom=0.15)
 ax = plt.subplot(1, 1, 1)
 
 plt.scatter(
@@ -81,6 +87,7 @@ plt.scatter(
 plt.xlabel("$\\beta/\\pi$")
 plt.ylabel("$\\gamma/\\pi$")
 plt.axis([-0.25, 0.25, -1, 1])
+plt.tight_layout()
 plt.savefig("p=1_optima.pdf")
 plt.savefig("p=1_optima.png")
 
@@ -90,7 +97,7 @@ labels = ["$\\beta_1/\\pi$", "$\\beta_2/\\pi$", "$\\gamma_1/\\pi$", "$\\gamma_2/
 axees = [[-0.25, 0.25], [-0.25, 0.25], [-1, 1], [-1, 1]]
 for i0 in range(4):
     for i1 in range(i0 + 1, 4):
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(1.5 * 6.92654 / 2, 6.92654 / 2), dpi=500)
         plt.subplots_adjust(left=0.15, right=0.85, bottom=0.15)
         ax = plt.subplot(1, 1, 1)
         plt.scatter(
@@ -112,6 +119,7 @@ for i0 in range(4):
         plt.xlabel(labels[i0])
         plt.ylabel(labels[i1])
         plt.axis(axees[i0] + axees[i1])
+        plt.tight_layout()
         plt.savefig("p=2_optima_{:0.0f}_{:0.0f}.pdf".format(i0, i1))
         plt.savefig("p=2_optima_{:0.0f}_{:0.0f}.png".format(i0, i1))
 
