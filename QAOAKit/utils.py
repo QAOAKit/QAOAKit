@@ -483,11 +483,16 @@ def load_weights_into_dataframe(folder_path):
     return pd.DataFrame(lines, columns=lines[0].keys())
 
 
-def brute_force(obj_f, num_variables):
+def brute_force(obj_f, num_variables, minimize=False):
     """Get the maximum of a function by complete enumeration
     Returns the maximum value and the extremizing bit string
     """
-    best_cost_brute = float("-inf")
+    if minimize:
+        best_cost_brute = float("inf")
+        compare = lambda x, y: x < y
+    else:
+        best_cost_brute = float("-inf")
+        compare = lambda x, y: x > y
     bit_strings = (
         (
             (
@@ -499,7 +504,7 @@ def brute_force(obj_f, num_variables):
     ).astype(int)
     for x in bit_strings:
         cost = obj_f(np.array(x))
-        if cost > best_cost_brute:
+        if compare(cost, best_cost_brute):
             best_cost_brute = cost
             xbest_brute = x
     return best_cost_brute, xbest_brute

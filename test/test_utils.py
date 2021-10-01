@@ -7,6 +7,7 @@ from functools import partial
 from pathlib import Path
 import copy
 import pytest
+from itertools import groupby
 
 from qiskit.quantum_info import Statevector
 
@@ -316,6 +317,31 @@ def test_brute_force():
     for _, row in df.iterrows():
         obj = partial(maxcut_obj, w=get_adjacency_matrix(row["G"]))
         assert np.isclose(row["C_{true opt}"], brute_force(obj, n)[0])
+
+
+def test_brute_force_minimize_unweighted():
+    def all_equal(iterable):
+        g = groupby(iterable)
+        return next(g, True) and not next(g, False)
+
+    n = 4
+    G = nx.complete_graph(n)
+    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    fval, soln = brute_force(obj, n, minimize=True)
+    assert np.isclose(fval, 0)
+    assert all_equal(soln)
+
+
+def test_brute_force_minimize_neg_weighted():
+    n = 4
+    G = nx.complete_graph(n)
+    for u, v in G.edges():
+        G[u][v]["weight"] = -1
+    G[0][1]["weight"] = 5
+    G[2][3]["weight"] = 5
+    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    fval, _ = brute_force(obj, n, minimize=True)
+    assert np.isclose(fval, -4)
 
 
 def test_get_opt_angles_k_reg():
