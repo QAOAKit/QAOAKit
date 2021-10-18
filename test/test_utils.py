@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 import pandas as pd
-from qiskit import QuantumRegister, ClassicalRegister, execute
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, execute
 from qiskit.providers.aer import AerSimulator
 from functools import partial
 from pathlib import Path
@@ -442,3 +442,33 @@ def test_tpm():
     obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
     vals = [obj(x) / G.number_of_edges() for x in soln]
     assert np.isclose(np.average(vals), exp_round, atol=0.01)
+
+
+def test_pass_quantum_register_to_qaoa_circuit_generator():
+    # Use case: appending a project circuit for error mitigation to the generated QAOA circuit
+    def get_bit_flip_projector(G, qr):
+        """N is the number of qubits
+        returns projector circuit (qiskit.QuantumCircuit) for bit-flip symmetry
+        """
+        N = G.number_of_nodes()
+        qc = QuantumCircuit(qr)
+        qc.h(N)
+        for i in range(0, N):
+            qc.cx(N, i)
+        qc.h(N)
+        return qc
+
+    G = nx.star_graph(4)
+    N = G.number_of_nodes()
+    qr = QuantumRegister(N + 1)
+    cr = ClassicalRegister(N + 1)
+
+    p = 2
+    angles = angles_to_qaoa_format(opt_angles_for_graph(G, p))
+    qc = get_maxcut_qaoa_circuit(
+        G, angles["beta"], angles["gamma"], transpile_to_basis=True, qr=qr, cr=cr
+    )
+    qc.compose(get_bit_flip_projector(G, qr), inplace=True)
+    qc.measure(qr[N], cr[N])
+
+    print(qc.draw())
