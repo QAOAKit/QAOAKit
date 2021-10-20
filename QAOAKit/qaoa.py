@@ -1,7 +1,7 @@
 # QAOA circuit for MAXCUT
 
 import networkx as nx
-from qiskit import QuantumCircuit, Aer, execute
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, Aer, execute
 from qiskit.compiler import transpile
 import numpy as np
 
@@ -37,11 +37,46 @@ def get_mixer_operator_circuit(G, beta):
     return qc
 
 
-def get_maxcut_qaoa_circuit(G, beta, gamma, transpile_to_basis=True, save_state=True):
+def get_maxcut_qaoa_circuit(
+    G, beta, gamma, transpile_to_basis=True, save_state=True, qr=None, cr=None
+):
+    """Generates a circuit for weighted MaxCut on graph G.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Graph to solve MaxCut on
+    beta : list-like
+        QAOA parameter beta
+    gamma : list-like
+        QAOA parameter gamma
+    transpile_to_basis : bool, default True
+        Transpile the circuit to ["u1", "u2", "u3", "cx"]
+    save_state : bool, default True
+        Add save state instruction to the end of the circuit
+    qr : qiskit.QuantumRegister, default None
+        Registers to use for the circuit.
+        Useful when one has to compose circuits in a complicated way
+        By default, G.number_of_nodes() registers are used
+    cr : qiskit.ClassicalRegister, default None
+        Classical registers, useful if measuring
+        By default, no classical registers are added
+    """
     assert len(beta) == len(gamma)
     p = len(beta)  # infering number of QAOA steps from the parameters passed
     N = G.number_of_nodes()
-    qc = QuantumCircuit(N)
+    if qr is not None:
+        assert isinstance(qr, QuantumRegister)
+        assert qr.size >= N
+    else:
+        qr = QuantumRegister(N)
+
+    if cr is not None:
+        assert isinstance(cr, ClassicalRegister)
+        qc = QuantumCircuit(qr, cr)
+    else:
+        qc = QuantumCircuit(qr)
+
     # first, apply a layer of Hadamards
     qc.h(range(N))
     # second, apply p alternating operators

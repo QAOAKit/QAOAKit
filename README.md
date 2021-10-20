@@ -76,3 +76,5 @@ pip install pre-commit
 pre-commit install
 ```
 Note that linter checks passing is a necessary condition for your contribution to be reviewed.
+
+We are in the process of moving the codebase to numpy-style docstrings. See documentation here: https://numpydoc.readthedocs.io/en/latest/format.html
