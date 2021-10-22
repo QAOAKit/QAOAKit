@@ -56,6 +56,23 @@ More advanced examples are available in `examples` folder:
 - Comparing QAOA with classical algorithms for MaxCut: [`examples/classical_vs_quantum.ipynb`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/classical_vs_quantum.ipynb)
 - Clustering degenerate QAOA angles: [`examples/degenerate_optima_in_angle_space.py`](https://github.com/QAOAKit/QAOAKit/blob/master/examples/degenerate_optima_in_angle_space.py)
 
+### Citation
+
+Please cite the following paper when using QAOAKit:
+
+```
+@article{2110.05555,
+Author = {Ruslan Shaydulin and Kunal Marwaha and Jonathan Wurtz and Phillip C. Lotshaw},
+Title = {QAOAKit: A Toolkit for Reproducible Study, Application, and Verification of the QAOA},
+Year = {2021},
+Eprint = {arXiv:2110.05555},
+Howpublished = {In Proceedings of the Second International Workshop on Quantum
+  Computing Software (in conjunction with SC21), 2021},
+}
+```
+
+Consider citing relevant papers for the particular dataset you use as well.
+
 ### Install from source
 
 ```
