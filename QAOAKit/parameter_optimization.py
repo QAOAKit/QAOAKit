@@ -1,9 +1,14 @@
+import pickle
 import numpy as np
+from pathlib import Path
 from sklearn.neighbors import KernelDensity
 from sklearn.model_selection import GridSearchCV
+
 from QAOAKit import get_full_qaoa_dataset_table
 
-def get_pre_trained_kde(p, n, n_jobs=1, bandwidth_range=np.logspace(-2, 1, 20)):
+parameter_optimization_folder = Path(__file__).parent
+
+def train_kde(p, n, n_jobs=1, bandwidth_range=np.logspace(-2, 1, 20)):
     """
     Fit KDE to optimized parameters for a given p <= 3 and n <= 9
     Resulting KDE can be used to sample optimized parameters for QAOA on MaxCut
@@ -50,4 +55,35 @@ def get_pre_trained_kde(p, n, n_jobs=1, bandwidth_range=np.logspace(-2, 1, 20)):
     kde = grid.best_estimator_
 
     return median, kde
+
+
+def get_median_pre_trained_kde(p):
+    """
+    Returns pre-fitted KDE with optimized parameters for a given p <= 3
+    KDE is fitted on optimal parameters for all non-isomorphic graphs with n=9 
+    Resulting KDE can be used to sample optimized parameters for QAOA on MaxCut
+    Follows the methodology of https://doi.org/10.1609/aaai.v34i03.5616
+
+    Parameters
+    ----------
+    p : int
+        Number of QAOA layers p
+    n : int
+        Number of nodes
+        Optimal angles for all non-isomorphic graphs on n nodes are used
+
+    Returns
+    -------
+    median, kde : tuple(np.array, sklearn.neighbors.KernelDensity)
+        Tuple of median angles and fitted kernel density model
+    """
+    kde_path = Path(
+        parameter_optimization_folder,
+        f"../data/pretrained_models/kde_n=9_p={p}_large_bandwidth_range.p",
+    )
+    try:
+        return pickle.load(open(kde_path, "rb")) 
+    except pickle.PickleError:
+        raise pickle.PickleError(f"Failed to unpickle the pre-trained KDE at {kde_path}. Please re-train the model using QAOAKit.parameter_optimization.train_kde.")
+
 
