@@ -474,8 +474,33 @@ def test_pass_quantum_register_to_qaoa_circuit_generator():
 
 
 def test_get_median_pre_trained_kde():
-    for p in [1, 2, 3]:
+    n = 8
+    n_kde_samples = 1
+    for p in [1, 2]:
         median, kde = get_median_pre_trained_kde(p)
-        new_data = kde.sample(1, random_state=0)
+        new_data = kde.sample(n_kde_samples, random_state=0)
         angles = np.vstack([np.atleast_2d(median), new_data])
-        assert angles.shape == (2, p * 2)
+        assert angles.shape == (n_kde_samples + 1, p * 2)
+        converted_angles = []
+        for angle in angles:
+            converted_angles.append(
+                np.hstack(
+                    [gamma_to_qaoa_format(angle[:p]), beta_to_qaoa_format(angle[p:])]
+                )
+            )
+        angles = np.vstack(converted_angles)
+        assert angles.shape == (n_kde_samples + 1, p * 2)
+
+        df = get_3_reg_dataset_table().reset_index()
+        df = df[(df["n"] == n) & (df["p_max"] == p)]
+        for _, row in df.head(10).iterrows():
+            ave_d = 2 * row["G"].number_of_edges() / row["G"].number_of_nodes()
+            if p == 1:
+                scaling_factor = np.arctan(1 / np.sqrt(ave_d - 1))
+            else:
+                scaling_factor = 1 / np.sqrt(ave_d)
+            en_transf = max(
+                qaoa_maxcut_energy(row["G"], angle[p:], angle[:p] * scaling_factor)
+                for angle in angles
+            )
+            assert en_transf >= 0.9 * row["C_opt"]
