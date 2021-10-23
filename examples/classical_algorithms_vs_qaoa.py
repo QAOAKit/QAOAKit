@@ -17,9 +17,7 @@ from QAOAKit.utils import (
     get_adjacency_matrix,
 )
 
-from QAOAKit.classical import (
-    thompson_parekh_marwaha,
-)
+from QAOAKit.classical import thompson_parekh_marwaha
 
 from QAOAKit.qiskit_interface import goemans_williamson
 

@@ -39,15 +39,11 @@ from QAOAKit.utils import (
     get_adjacency_matrix,
     brute_force,
 )
-from QAOAKit.classical import (
-    thompson_parekh_marwaha,
-)
+from QAOAKit.classical import thompson_parekh_marwaha
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit
 from QAOAKit.qiskit_interface import get_maxcut_qaoa_qiskit_circuit, goemans_williamson
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
-from QAOAKit.parameter_optimization import (
-    get_median_pre_trained_kde,
-)
+from QAOAKit.parameter_optimization import get_median_pre_trained_kde
 
 from qiskit_optimization import QuadraticProgram
 from qiskit.algorithms.minimum_eigen_solvers.qaoa import QAOAAnsatz
@@ -476,10 +472,10 @@ def test_pass_quantum_register_to_qaoa_circuit_generator():
 
     print(qc.draw())
 
+
 def test_get_median_pre_trained_kde():
-    for p in [1,2,3]:
+    for p in [1, 2, 3]:
         median, kde = get_median_pre_trained_kde(p)
         new_data = kde.sample(1, random_state=0)
         angles = np.vstack([np.atleast_2d(median), new_data])
-        assert angles.shape == (2, p*2)
-
+        assert angles.shape == (2, p * 2)
