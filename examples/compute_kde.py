@@ -1,11 +1,10 @@
-"""
+'''
 If pre-trained KDE models do not load correctly due to conflict in sklearn
 version or other problems, recompute them by running the script below.
 Warning! Can take a very long time.
 
 Recommended way to run is using GNU parallel:
 
-```
 #!/bin/bash
 
 parallel \
@@ -13,8 +12,7 @@ parallel \
     """
     python compute_kde.py {1}
     """ ::: "$(seq 1 3)"
-```
-"""
+'''
 
 import numpy as np
 import pickle
