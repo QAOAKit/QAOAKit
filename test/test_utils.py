@@ -38,6 +38,7 @@ from QAOAKit.utils import (
     load_weighted_results_into_dataframe,
     get_adjacency_matrix,
     brute_force,
+    get_pynauty_certificate,
 )
 from QAOAKit.classical import thompson_parekh_marwaha
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit
@@ -504,3 +505,12 @@ def test_get_median_pre_trained_kde():
                 for angle in angles
             )
             assert en_transf >= 0.9 * row["C_opt"]
+
+
+def test_get_pynauty_certificate():
+    elist = [[0,1],[1,2],[2,3]]
+    G1 = nx.Graph()
+    G1.add_edges_from(elist)
+    G2 = nx.Graph(elist[::-1])
+
+    assert get_pynauty_certificate(G1) == get_pynauty_certificate(G2)

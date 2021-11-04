@@ -132,6 +132,27 @@ def get_adjacency_dict(G):
     return adjacency_dict
 
 
+def get_pynauty_certificate(G):
+    """Get pynauty certificate for G
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Unweighted graph to compute certificate for
+
+    Returns
+    -------
+    cert : binary
+        isomorphism certificate for G
+    """
+    g = pynauty.Graph(
+        number_of_vertices=G.number_of_nodes(),
+        directed=nx.is_directed(G),
+        adjacency_dict=get_adjacency_dict(G),
+    )
+    return pynauty.certificate(g)
+
+
 def isomorphic(G1, G2):
     """Tests if two unweighted graphs are isomorphic using pynauty
     Ignores all attributes
