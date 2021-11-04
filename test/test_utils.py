@@ -508,7 +508,7 @@ def test_get_median_pre_trained_kde():
 
 
 def test_get_pynauty_certificate():
-    elist = [[0,1],[1,2],[2,3]]
+    elist = [[0, 1], [1, 2], [2, 3]]
     G1 = nx.Graph()
     G1.add_edges_from(elist)
     G2 = nx.Graph(elist[::-1])
