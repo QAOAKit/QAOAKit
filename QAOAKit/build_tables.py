@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 import json
-import re
 import gc
 import copy
 import pynauty
@@ -15,7 +14,11 @@ import shutil
 from tqdm import tqdm
 from multiprocessing import Process
 
-from .utils import load_results_file_into_dataframe, get_adjacency_dict
+from .utils import (
+    load_results_file_into_dataframe,
+    get_adjacency_dict,
+    read_graph_from_file,
+)
 
 build_tables_folder = Path(__file__).parent
 
@@ -85,25 +88,8 @@ def build_graph2pynauty():
                 "../data/qaoa-dataset-version1/Graphs/graph" + str(n_qubits) + "c.txt",
             )
         ) as f:
-            for graph in tqdm(range(1, n_graphs[n_qubits] + 1), leave=False):
-                f.readline(-1)  # first line is blank
-                line_with_id = f.readline(-1)  # second line has graph number and order
-                graph_id, graph_order = [
-                    int(x) for x in re.split(" |, |. |.\n", line_with_id) if x.isdigit()
-                ]
-                assert graph_order == n_qubits
-                edges = []
-                G = nx.Graph()
-                for n in range(n_qubits):
-                    G.add_nodes_from([n])
-                # third line is first row of upper triangle of adjacency matrix (without the diagonal element)
-                for n in range(n_qubits - 1):
-                    adj_str = f.readline(-1)
-                    for m in range(n_qubits - 1 - n):
-                        q_num = n + m + 1
-                        if adj_str[m] == "1":
-                            edges.append([n, q_num])
-                            G.add_edge(n, q_num)
+            for _ in tqdm(range(n_graphs[n_qubits]), leave=False):
+                G, graph_id = read_graph_from_file(f, expected_nnodes=n_qubits)
                 g = pynauty.Graph(
                     number_of_vertices=G.number_of_nodes(),
                     directed=nx.is_directed(G),
@@ -137,25 +123,8 @@ def build_graph2pynauty_large():
                 "../data/qaoa-dataset-version1/Graphs/graph" + str(n_qubits) + "c.txt",
             )
         ) as f:
-            for graph in tqdm(range(1, n_graphs[n_qubits] + 1), leave=False):
-                f.readline(-1)  # first line is blank
-                line_with_id = f.readline(-1)  # second line has graph number and order
-                graph_id, graph_order = [
-                    int(x) for x in re.split(" |, |. |.\n", line_with_id) if x.isdigit()
-                ]
-                assert graph_order == n_qubits
-                G = nx.Graph()
-                edge_id = 0
-                for n in range(n_qubits):
-                    G.add_nodes_from([n])
-                # third line is first row of upper triangle of adjacency matrix (without the diagonal element)
-                for n in range(n_qubits - 1):
-                    adj_str = f.readline(-1)
-                    for m in range(n_qubits - 1 - n):
-                        q_num = n + m + 1
-                        if adj_str[m] == "1":
-                            G.add_edge(n, q_num, edge_id=edge_id)
-                            edge_id += 1
+            for _ in tqdm(range(n_graphs[n_qubits]), leave=False):
+                G, graph_id = read_graph_from_file(f, expected_nnodes=n_qubits)
                 g = pynauty.Graph(
                     number_of_vertices=G.number_of_nodes(),
                     directed=nx.is_directed(G),
