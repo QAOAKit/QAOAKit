@@ -536,7 +536,7 @@ def load_weighted_results_into_dataframe(
                 ),
                 axis=1,
             ),
-            df.head(100)["C_opt"],
+            df.head(10)["C_opt"],
         )
     )
 
