@@ -526,9 +526,16 @@ def load_weighted_results_into_dataframe(
         | np.isnan(df["std(weight)"])
     )
 
+    if nqubits <= 10:
+        number_of_rows_to_check = 20
+    elif nqubits <= 15:
+        number_of_rows_to_check = 10
+    else:
+        number_of_rows_to_check = 1
+
     assert np.all(
         np.isclose(
-            df.head(10).apply(
+            df.head(number_of_rows_to_check).apply(
                 lambda row: qaoa_maxcut_energy(
                     row["G"],
                     beta_to_qaoa_format(row["beta"]),
@@ -536,7 +543,7 @@ def load_weighted_results_into_dataframe(
                 ),
                 axis=1,
             ),
-            df.head(10)["C_opt"],
+            df.head(number_of_rows_to_check)["C_opt"],
         )
     )
 
