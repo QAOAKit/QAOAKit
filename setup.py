@@ -30,6 +30,7 @@ setup(
         "tqdm",
         "cvxgraphalgs",
         "cvxopt",
+        "scikit-learn>=1.0",
     ],
     zip_safe=True,
 )
