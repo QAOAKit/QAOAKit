@@ -8,6 +8,7 @@ from pathlib import Path
 import copy
 import pytest
 from itertools import groupby
+import timeit
 
 from qiskit.quantum_info import Statevector
 
@@ -32,6 +33,7 @@ from QAOAKit import (
 )
 from QAOAKit.utils import (
     obj_from_statevector,
+    precompute_energies,
     maxcut_obj,
     isomorphic,
     load_weights_into_dataframe,
@@ -514,3 +516,45 @@ def test_get_pynauty_certificate():
     G2 = nx.Graph(elist[::-1])
 
     assert get_pynauty_certificate(G1) == get_pynauty_certificate(G2)
+
+
+def test_obj_from_statevector():
+    full_qaoa_dataset_table = get_full_qaoa_dataset_table()
+    for n_qubits in [3, 5]:
+        for p in [2, 3]:
+            df = full_qaoa_dataset_table.reset_index()
+            df = df[(df["n"] == n_qubits) & (df["p_max"] == p)]
+            for _, row in df.iterrows():
+                obj = partial(maxcut_obj, w=get_adjacency_matrix(row["G"]))
+                opt_cut = row["C_opt"]
+                angles = angles_to_qaoa_format(
+                    opt_angles_for_graph(row["G"], row["p_max"])
+                )
+                qc = get_maxcut_qaoa_circuit(row["G"], angles["beta"], angles["gamma"])
+                backend = AerSimulator(method="statevector")
+                res = backend.run(qc).result()
+                sv = res.get_statevector()
+                obj_val = obj_from_statevector(sv, obj)
+                assert np.isclose(opt_cut, obj_val)
+                precomputed_energies = precompute_energies(obj, n_qubits)
+                obj_val2 = obj_from_statevector(
+                    sv, obj, precomputed_energies=precomputed_energies
+                )
+                assert np.isclose(opt_cut, obj_val2)
+
+
+def test_precomputed_energies_fast():
+    n_qubits = 20
+    G = nx.random_regular_graph(3, n_qubits, seed=42)
+    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    precomputed_energies = precompute_energies(obj, n_qubits)
+    beta = np.random.uniform(0, np.pi, 2)
+    gamma = np.random.uniform(0, np.pi, 2)
+    t1 = timeit.timeit(lambda: qaoa_maxcut_energy(G, beta, gamma), number=5)
+    t2 = timeit.timeit(
+        lambda: qaoa_maxcut_energy(
+            G, beta, gamma, precomputed_energies=precomputed_energies
+        ),
+        number=5,
+    )
+    assert 2 * t2 < t1

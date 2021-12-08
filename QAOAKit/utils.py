@@ -651,23 +651,39 @@ def state_to_ampl_counts(vec, eps=1e-15):
     return counts
 
 
-def obj_from_statevector(sv, obj_f):
+def precompute_energies(obj_f, nbits):
+    """
+    Precomputed a vector of objective function values
+    that accelerates the energy computation in obj_from_statevector
+    """
+    bit_strings = (
+        ((np.array(range(2 ** nbits))[:, None] & (1 << np.arange(nbits)))) > 0
+    ).astype(int)
+
+    return np.array([obj_f(x) for x in bit_strings])
+
+
+def obj_from_statevector(sv, obj_f, precomputed_energies=None):
     """Compute objective from Qiskit statevector
     For large number of qubits, this is slow.
     """
-    qubit_dims = np.log2(sv.shape[0])
-    if qubit_dims % 1:
-        raise ValueError("Input vector is not a valid statevector for qubits.")
-    qubit_dims = int(qubit_dims)
-    # get bit strings for each element of the state vector
-    # https://stackoverflow.com/questions/22227595/convert-integer-to-binary-array-with-suitable-padding
-    bit_strings = (
-        ((np.array(range(sv.shape[0]))[:, None] & (1 << np.arange(qubit_dims)))) > 0
-    ).astype(int)
+    if precomputed_energies is None:
+        qubit_dims = np.log2(sv.shape[0])
+        if qubit_dims % 1:
+            raise ValueError("Input vector is not a valid statevector for qubits.")
+        qubit_dims = int(qubit_dims)
+        # get bit strings for each element of the state vector
+        # https://stackoverflow.com/questions/22227595/convert-integer-to-binary-array-with-suitable-padding
+        bit_strings = (
+            ((np.array(range(sv.shape[0]))[:, None] & (1 << np.arange(qubit_dims)))) > 0
+        ).astype(int)
 
-    return sum(
-        obj_f(bit_strings[kk]) * (np.abs(sv[kk]) ** 2) for kk in range(sv.shape[0])
-    )
+        return sum(
+            obj_f(bit_strings[kk]) * (np.abs(sv[kk]) ** 2) for kk in range(sv.shape[0])
+        )
+    else:
+        amplitudes = np.array([np.abs(sv[kk]) ** 2 for kk in range(sv.shape[0])])
+        return precomputed_energies.dot(amplitudes)
 
 
 def maxcut_obj(x, w):
@@ -698,12 +714,15 @@ def get_adjacency_matrix(G):
     return w
 
 
-def qaoa_maxcut_energy(G, beta, gamma):
+def qaoa_maxcut_energy(G, beta, gamma, precomputed_energies=None):
     """Computes MaxCut QAOA energy for graph G
     qaoa format (`angles_to_qaoa_format`) used for beta, gamma
     """
-    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    if precomputed_energies is None:
+        obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    else:
+        obj = None
     qc = get_maxcut_qaoa_circuit(G, beta, gamma)
     backend = AerSimulator(method="statevector")
     sv = backend.run(qc).result().get_statevector()
-    return obj_from_statevector(sv, obj)
+    return obj_from_statevector(sv, obj, precomputed_energies=precomputed_energies)
