@@ -20,7 +20,7 @@ setup(
     python_requires=">=3, <4",
     packages=["QAOAKit"],
     install_requires=[
-        "qiskit>=0.28.0",
+        "qiskit==0.29.0",
         "pynauty==1.0.0",
         "qiskit-optimization",
         "pandas",
