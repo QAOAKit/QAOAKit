@@ -39,6 +39,7 @@ class LookupTableHandler:
         self.full_qaoa_dataset_table = None
         self.three_reg_dataset_table = None
         self.fixed_angle_dataset_table = None
+        self.full_weighted_qaoa_dataset_table = None
 
     def get_graph2angles(self):
         if self.graph2angles is None:
@@ -75,6 +76,19 @@ class LookupTableHandler:
                 Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")
             ).set_index(["pynauty_cert", "p_max"])
         return self.full_qaoa_dataset_table
+
+    def get_full_weighted_qaoa_dataset_table(self):
+        if self.full_weighted_qaoa_dataset_table is None:
+            self.full_weighted_qaoa_dataset_table = pd.read_json(
+                Path(utils_folder, "../data/transfer_qaoa_weighted/all_transfer.zip")
+            )
+            self.full_weighted_qaoa_dataset_table[
+                "G"
+            ] = self.full_weighted_qaoa_dataset_table.apply(
+                lambda row: nx.node_link_graph(row["G_json"]),
+                axis=1,
+            )
+        return self.full_weighted_qaoa_dataset_table
 
     def get_3_reg_dataset_table(self):
         if self.three_reg_dataset_table is None:
@@ -223,6 +237,10 @@ def get_fixed_angles(d, p):
 
 def get_full_qaoa_dataset_table():
     return lookup_table_handler.get_full_qaoa_dataset_table()
+
+
+def get_full_weighted_qaoa_dataset_table():
+    return lookup_table_handler.get_full_weighted_qaoa_dataset_table()
 
 
 def get_3_reg_dataset_table():

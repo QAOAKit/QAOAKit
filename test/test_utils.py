@@ -41,6 +41,7 @@ from QAOAKit.utils import (
     get_adjacency_matrix,
     brute_force,
     get_pynauty_certificate,
+    get_full_weighted_qaoa_dataset_table,
 )
 from QAOAKit.classical import thompson_parekh_marwaha
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit
@@ -558,3 +559,14 @@ def test_precomputed_energies_fast():
         number=5,
     )
     assert 2 * t2 < t1
+
+
+def test_weighted_table():
+    df = get_full_weighted_qaoa_dataset_table()
+
+    # test that the angles are correct
+    for _, row in df[(df["n"] == 8) | (df["p_max"] == 2)].head(50).iterrows():
+        angles = angles_to_qaoa_format({"beta": row["beta"], "gamma": row["gamma"]})
+        assert np.isclose(
+            qaoa_maxcut_energy(row["G"], angles["beta"], angles["gamma"]), row["C_opt"]
+        )
