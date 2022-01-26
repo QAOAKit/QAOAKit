@@ -31,6 +31,9 @@ setup(
         "cvxgraphalgs",
         "cvxopt",
         "scikit-learn==1.0",
+        "notebook",
+        "matplotlib",
+        "seaborn",
     ],
     zip_safe=True,
 )
