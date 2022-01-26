@@ -8,6 +8,7 @@ from pathlib import Path
 import copy
 import pytest
 from itertools import groupby
+import timeit
 
 from qiskit.quantum_info import Statevector
 
@@ -32,19 +33,21 @@ from QAOAKit import (
 )
 from QAOAKit.utils import (
     obj_from_statevector,
+    precompute_energies,
     maxcut_obj,
     isomorphic,
     load_weights_into_dataframe,
     load_weighted_results_into_dataframe,
     get_adjacency_matrix,
     brute_force,
+    get_pynauty_certificate,
+    get_full_weighted_qaoa_dataset_table,
 )
-from QAOAKit.classical import (
-    thompson_parekh_marwaha,
-)
+from QAOAKit.classical import thompson_parekh_marwaha
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit
 from QAOAKit.qiskit_interface import get_maxcut_qaoa_qiskit_circuit, goemans_williamson
 from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
+from QAOAKit.parameter_optimization import get_median_pre_trained_kde
 
 from qiskit_optimization import QuadraticProgram
 from qiskit.algorithms.minimum_eigen_solvers.qaoa import QAOAAnsatz
@@ -472,3 +475,98 @@ def test_pass_quantum_register_to_qaoa_circuit_generator():
     qc.measure(qr[N], cr[N])
 
     print(qc.draw())
+
+
+def test_get_median_pre_trained_kde():
+    n = 8
+    n_kde_samples = 1
+    for p in [1, 2]:
+        median, kde = get_median_pre_trained_kde(p)
+        new_data = kde.sample(n_kde_samples, random_state=0)
+        angles = np.vstack([np.atleast_2d(median), new_data])
+        assert angles.shape == (n_kde_samples + 1, p * 2)
+        converted_angles = []
+        for angle in angles:
+            converted_angles.append(
+                np.hstack(
+                    [gamma_to_qaoa_format(angle[:p]), beta_to_qaoa_format(angle[p:])]
+                )
+            )
+        angles = np.vstack(converted_angles)
+        assert angles.shape == (n_kde_samples + 1, p * 2)
+
+        df = get_3_reg_dataset_table().reset_index()
+        df = df[(df["n"] == n) & (df["p_max"] == p)]
+        for _, row in df.head(10).iterrows():
+            ave_d = 2 * row["G"].number_of_edges() / row["G"].number_of_nodes()
+            if p == 1:
+                scaling_factor = np.arctan(1 / np.sqrt(ave_d - 1))
+            else:
+                scaling_factor = 1 / np.sqrt(ave_d)
+            en_transf = max(
+                qaoa_maxcut_energy(row["G"], angle[p:], angle[:p] * scaling_factor)
+                for angle in angles
+            )
+            assert en_transf >= 0.9 * row["C_opt"]
+
+
+def test_get_pynauty_certificate():
+    elist = [[0, 1], [1, 2], [2, 3]]
+    G1 = nx.Graph()
+    G1.add_edges_from(elist)
+    G2 = nx.Graph(elist[::-1])
+
+    assert get_pynauty_certificate(G1) == get_pynauty_certificate(G2)
+
+
+def test_obj_from_statevector():
+    full_qaoa_dataset_table = get_full_qaoa_dataset_table()
+    for n_qubits in [3, 5]:
+        for p in [2, 3]:
+            df = full_qaoa_dataset_table.reset_index()
+            df = df[(df["n"] == n_qubits) & (df["p_max"] == p)]
+            for _, row in df.iterrows():
+                obj = partial(maxcut_obj, w=get_adjacency_matrix(row["G"]))
+                opt_cut = row["C_opt"]
+                angles = angles_to_qaoa_format(
+                    opt_angles_for_graph(row["G"], row["p_max"])
+                )
+                qc = get_maxcut_qaoa_circuit(row["G"], angles["beta"], angles["gamma"])
+                backend = AerSimulator(method="statevector")
+                res = backend.run(qc).result()
+                sv = res.get_statevector()
+                obj_val = obj_from_statevector(sv, obj)
+                assert np.isclose(opt_cut, obj_val)
+                precomputed_energies = precompute_energies(obj, n_qubits)
+                obj_val2 = obj_from_statevector(
+                    sv, obj, precomputed_energies=precomputed_energies
+                )
+                assert np.isclose(opt_cut, obj_val2)
+
+
+def test_precomputed_energies_fast():
+    n_qubits = 20
+    G = nx.random_regular_graph(3, n_qubits, seed=42)
+    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    precomputed_energies = precompute_energies(obj, n_qubits)
+    beta = np.random.uniform(0, np.pi, 2)
+    gamma = np.random.uniform(0, np.pi, 2)
+    t1 = timeit.timeit(lambda: qaoa_maxcut_energy(G, beta, gamma), number=5)
+    t2 = timeit.timeit(
+        lambda: qaoa_maxcut_energy(
+            G, beta, gamma, precomputed_energies=precomputed_energies
+        ),
+        number=5,
+    )
+    assert 2 * t2 < t1
+
+
+def test_weighted_table():
+    df = get_full_weighted_qaoa_dataset_table()
+
+    # test that the angles are correct
+    for _, row in df[(df["n"] == 8) | (df["p_max"] == 2)].head(50).iterrows():
+        angles = angles_to_qaoa_format({"beta": row["beta"], "gamma": row["gamma"]})
+        assert np.isclose(
+            qaoa_maxcut_energy(row["G"], angles["beta"], angles["gamma"]), row["C_opt"]
+        )

@@ -61,6 +61,11 @@ def get_maxcut_qaoa_circuit(
     cr : qiskit.ClassicalRegister, default None
         Classical registers, useful if measuring
         By default, no classical registers are added
+
+    Returns
+    -------
+    qc : qiskit.QuantumCircuit
+        Quantum circuit implementing QAOA
     """
     assert len(beta) == len(gamma)
     p = len(beta)  # infering number of QAOA steps from the parameters passed

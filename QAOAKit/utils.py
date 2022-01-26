@@ -8,6 +8,7 @@ from pathlib import Path
 from functools import partial
 from qiskit.providers.aer import AerSimulator
 import json
+import re
 import warnings
 
 from QAOAKit.qaoa import get_maxcut_qaoa_circuit
@@ -38,6 +39,7 @@ class LookupTableHandler:
         self.full_qaoa_dataset_table = None
         self.three_reg_dataset_table = None
         self.fixed_angle_dataset_table = None
+        self.full_weighted_qaoa_dataset_table = None
 
     def get_graph2angles(self):
         if self.graph2angles is None:
@@ -74,6 +76,19 @@ class LookupTableHandler:
                 Path(utils_folder, "../data/lookup_tables/full_qaoa_dataset_table.p")
             ).set_index(["pynauty_cert", "p_max"])
         return self.full_qaoa_dataset_table
+
+    def get_full_weighted_qaoa_dataset_table(self):
+        if self.full_weighted_qaoa_dataset_table is None:
+            self.full_weighted_qaoa_dataset_table = pd.read_json(
+                Path(utils_folder, "../data/transfer_qaoa_weighted/all_transfer.zip")
+            )
+            self.full_weighted_qaoa_dataset_table[
+                "G"
+            ] = self.full_weighted_qaoa_dataset_table.apply(
+                lambda row: nx.node_link_graph(row["G_json"]),
+                axis=1,
+            )
+        return self.full_weighted_qaoa_dataset_table
 
     def get_3_reg_dataset_table(self):
         if self.three_reg_dataset_table is None:
@@ -130,6 +145,27 @@ def get_adjacency_dict(G):
             neigh_list.append(neigh)
         adjacency_dict[n] = neigh_list
     return adjacency_dict
+
+
+def get_pynauty_certificate(G):
+    """Get pynauty certificate for G
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Unweighted graph to compute certificate for
+
+    Returns
+    -------
+    cert : binary
+        isomorphism certificate for G
+    """
+    g = pynauty.Graph(
+        number_of_vertices=G.number_of_nodes(),
+        directed=nx.is_directed(G),
+        adjacency_dict=get_adjacency_dict(G),
+    )
+    return pynauty.certificate(g)
 
 
 def isomorphic(G1, G2):
@@ -201,6 +237,10 @@ def get_fixed_angles(d, p):
 
 def get_full_qaoa_dataset_table():
     return lookup_table_handler.get_full_qaoa_dataset_table()
+
+
+def get_full_weighted_qaoa_dataset_table():
+    return lookup_table_handler.get_full_weighted_qaoa_dataset_table()
 
 
 def get_3_reg_dataset_table():
@@ -301,6 +341,47 @@ def angles_to_qtensor_format(angles):
     return {"gamma": [-g / 2 for g in angles["gamma"]], "beta": angles["beta"]}
 
 
+def read_graph_from_file(f, expected_nnodes=None):
+    """Read a graph in a format used by qaoa-dataset-version1
+
+    Parameters
+    ----------
+    f : file-like object
+        Handler for the file to read from
+    expected_nnodes : int, default None
+        Number of nodes to expect
+        If passed, a check will be performed
+        to confirm that the actual number of nodes
+        matches the expectation
+
+    Returns
+    -------
+    G : networkx.Graph
+    graph_id : int
+        ID of the graph
+    """
+    f.readline(-1)  # first line is blank
+    line_with_id = f.readline(-1)  # second line has graph number and order
+    graph_id, graph_order = [
+        int(x) for x in re.split(" |, |. |.\n", line_with_id) if x.isdigit()
+    ]
+    if expected_nnodes is not None:
+        assert graph_order == expected_nnodes
+    G = nx.Graph()
+    for n in range(graph_order):
+        G.add_nodes_from([n])
+    edge_id = 0
+    # third line is first row of upper triangle of adjacency matrix (without the diagonal element)
+    for n in range(graph_order - 1):
+        adj_str = f.readline(-1)
+        for m in range(graph_order - 1 - n):
+            q_num = n + m + 1
+            if adj_str[m] == "1":
+                G.add_edge(n, q_num, edge_id=edge_id)
+                edge_id += 1
+    return G, graph_id
+
+
 def load_results_file_into_dataframe(n_qubits, p):
     """Loads one file from ../data/qaoa-dataset-version1/Results/ into a pandas.DataFrame
     Column names are from ../data/qaoa-dataset-version1/Results/How_to_read_data_columns.txt
@@ -348,7 +429,7 @@ def load_results_file_into_dataframe(n_qubits, p):
     ].set_index("graph_id")
 
 
-def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
+def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights, graphs_dict):
     """Retrieves a graph from graph_id and nqubits and assigns weights
     from df_weights
     """
@@ -363,14 +444,24 @@ def get_graph_and_assign_weights(graph_id, weight_id, nqubits, df_weights):
             f"For graph_id={graph_id}, weight_id={weight_id} found unexpected number ({len(weights)}) weights"
         )
     weights = weights[0]
-    G = get_graph_from_id(graph_id, nqubits)
+    if graphs_dict is None:
+        assert (
+            nqubits <= 9
+        ), "If the number of nodes is greater than 9, must pass graphs file path"
+        G = get_graph_from_id(graph_id, nqubits)
+    else:
+        G = graphs_dict[graph_id]
     for u, v, attr_dict in G.edges(data=True):
         G[u][v]["weight"] = weights[attr_dict["edge_id"]]
     return copy.deepcopy(G)
 
 
-def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
+def load_weighted_results_into_dataframe(
+    folder_path, p, nqubits, df_weights, graphs_file_path=None
+):
     """Loads all result files from ../data/weighted_angle_dat/{p}
+    if no path to file describing graphs (graphs_file_path) is provided, will presume that
+    the graphs should be loaded from the full_qaoa_dataset_table
     df_weights is a dataframe mapping graph_id and weight_id to list of weights
     The column names and conventions are described in ../data/weighted_angle_dat/Readme.txt
     One column is added:
@@ -408,9 +499,22 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
     ] = p  # maximal p allowed; this is to differentiate from p in the original dataset, which can be lower due to achieving optimal solution
     df["beta"] = df.apply(lambda row: [row[f"beta_{i}/pi"] for i in range(p)], axis=1)
     df["gamma"] = df.apply(lambda row: [row[f"gamma_{i}/pi"] for i in range(p)], axis=1)
+    # load graphs if needed
+    if graphs_file_path is not None:
+        graphs_dict = {}
+        with open(graphs_file_path, "r") as f:
+            graph_ids = []
+            while True:
+                try:
+                    G, graph_id = read_graph_from_file(f)
+                    graphs_dict[graph_id] = G
+                except ValueError:
+                    break
+    else:
+        graphs_dict = None
     df["G"] = df.apply(
         lambda row: get_graph_and_assign_weights(
-            row["graph_id"], row["weight_id"], nqubits, df_weights
+            row["graph_id"], row["weight_id"], nqubits, df_weights, graphs_dict
         ),
         axis=1,
     )
@@ -440,9 +544,16 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
         | np.isnan(df["std(weight)"])
     )
 
+    if nqubits <= 10:
+        number_of_rows_to_check = 20
+    elif nqubits <= 15:
+        number_of_rows_to_check = 10
+    else:
+        number_of_rows_to_check = 1
+
     assert np.all(
         np.isclose(
-            df.head(100).apply(
+            df.head(number_of_rows_to_check).apply(
                 lambda row: qaoa_maxcut_energy(
                     row["G"],
                     beta_to_qaoa_format(row["beta"]),
@@ -450,7 +561,7 @@ def load_weighted_results_into_dataframe(folder_path, p, nqubits, df_weights):
                 ),
                 axis=1,
             ),
-            df.head(100)["C_opt"],
+            df.head(number_of_rows_to_check)["C_opt"],
         )
     )
 
@@ -558,23 +669,39 @@ def state_to_ampl_counts(vec, eps=1e-15):
     return counts
 
 
-def obj_from_statevector(sv, obj_f):
+def precompute_energies(obj_f, nbits):
+    """
+    Precomputed a vector of objective function values
+    that accelerates the energy computation in obj_from_statevector
+    """
+    bit_strings = (
+        ((np.array(range(2 ** nbits))[:, None] & (1 << np.arange(nbits)))) > 0
+    ).astype(int)
+
+    return np.array([obj_f(x) for x in bit_strings])
+
+
+def obj_from_statevector(sv, obj_f, precomputed_energies=None):
     """Compute objective from Qiskit statevector
     For large number of qubits, this is slow.
     """
-    qubit_dims = np.log2(sv.shape[0])
-    if qubit_dims % 1:
-        raise ValueError("Input vector is not a valid statevector for qubits.")
-    qubit_dims = int(qubit_dims)
-    # get bit strings for each element of the state vector
-    # https://stackoverflow.com/questions/22227595/convert-integer-to-binary-array-with-suitable-padding
-    bit_strings = (
-        ((np.array(range(sv.shape[0]))[:, None] & (1 << np.arange(qubit_dims)))) > 0
-    ).astype(int)
+    if precomputed_energies is None:
+        qubit_dims = np.log2(sv.shape[0])
+        if qubit_dims % 1:
+            raise ValueError("Input vector is not a valid statevector for qubits.")
+        qubit_dims = int(qubit_dims)
+        # get bit strings for each element of the state vector
+        # https://stackoverflow.com/questions/22227595/convert-integer-to-binary-array-with-suitable-padding
+        bit_strings = (
+            ((np.array(range(sv.shape[0]))[:, None] & (1 << np.arange(qubit_dims)))) > 0
+        ).astype(int)
 
-    return sum(
-        obj_f(bit_strings[kk]) * (np.abs(sv[kk]) ** 2) for kk in range(sv.shape[0])
-    )
+        return sum(
+            obj_f(bit_strings[kk]) * (np.abs(sv[kk]) ** 2) for kk in range(sv.shape[0])
+        )
+    else:
+        amplitudes = np.array([np.abs(sv[kk]) ** 2 for kk in range(sv.shape[0])])
+        return precomputed_energies.dot(amplitudes)
 
 
 def maxcut_obj(x, w):
@@ -605,12 +732,15 @@ def get_adjacency_matrix(G):
     return w
 
 
-def qaoa_maxcut_energy(G, beta, gamma):
+def qaoa_maxcut_energy(G, beta, gamma, precomputed_energies=None):
     """Computes MaxCut QAOA energy for graph G
     qaoa format (`angles_to_qaoa_format`) used for beta, gamma
     """
-    obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    if precomputed_energies is None:
+        obj = partial(maxcut_obj, w=get_adjacency_matrix(G))
+    else:
+        obj = None
     qc = get_maxcut_qaoa_circuit(G, beta, gamma)
     backend = AerSimulator(method="statevector")
     sv = backend.run(qc).result().get_statevector()
-    return obj_from_statevector(sv, obj)
+    return obj_from_statevector(sv, obj, precomputed_energies=precomputed_energies)

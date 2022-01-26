@@ -20,7 +20,7 @@ Test install
 cd /tmp
 conda deactivate
 conda env remove -n test_qaoa
-conda create -y -n test_qaoa python=3
+conda create -y -n test_qaoa python=3.8
 conda activate test_qaoa
 pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple QAOAKit
 python -m QAOAKit.build_tables
@@ -38,7 +38,7 @@ Test real PyPI install
 cd /tmp
 conda deactivate
 conda env remove -n test_qaoa
-conda create -y -n test_qaoa python=3
+conda create -y -n test_qaoa python=3.8
 conda activate test_qaoa
 pip install QAOAKit
 python -m QAOAKit.build_tables
