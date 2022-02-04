@@ -15,6 +15,7 @@ python setup.py sdist bdist_wheel
 Tag the version
 ```
 git tag v999.999
+git push origin --tags
 ```
 
 Upload to testpypi
