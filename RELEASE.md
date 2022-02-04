@@ -11,6 +11,12 @@ Build archive (don't forget to update the version in setup.py!)
 rm -r build *.egg-info dist
 python setup.py sdist bdist_wheel
 ```
+
+Tag the version
+```
+git tag v999.999
+```
+
 Upload to testpypi
 ```
 python -m twine upload --repository testpypi dist/*
