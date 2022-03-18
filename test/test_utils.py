@@ -514,7 +514,7 @@ def test_get_medians():
     df = get_full_weighted_qaoa_dataset_table()
 
     p = 2
-    df = df[(df["n"] == 8) & (df["p_max"] == p)].head(100)
+    df = df[(df["n"] == 8) & (df["p_max"] == p) & (df["nsamples"] == 0)].sample(n=100)
 
     assert len(df) == 100
 
