@@ -510,6 +510,40 @@ def test_get_median_pre_trained_kde():
             assert en_transf >= 0.9 * row["C_opt"]
 
 
+def test_get_medians():
+    df = get_full_weighted_qaoa_dataset_table()
+
+    p = 2
+    df = df[(df["n"] == 8) & (df["p_max"] == p)].head(100)
+
+    assert len(df) == 100
+
+    median = get_median_pre_trained_kde(p)[0]
+
+    df["r_trans"] = (
+        df["C_{transfered unweighted to weighted}"] - df["C_{true min}"]
+    ) / (df["C_{true opt}"] - df["C_{true min}"])
+
+    df["r_trans_test"] = df.apply(
+        lambda row: (
+            qaoa_maxcut_energy(
+                row["G"],
+                beta_to_qaoa_format(median[row["p_max"] :]),
+                gamma_to_qaoa_format(
+                    median[: row["p_max"]]
+                    * np.arctan(1 / np.sqrt(row["average degree"] - 1))
+                ),
+            )
+            - row["C_{true min}"]
+        )
+        / (row["C_{true opt}"] - row["C_{true min}"]),
+        axis=1,
+    )
+
+    for _, row in df.iterrows():
+        assert np.isclose(row["r_trans"], row["r_trans_test"])
+
+
 def test_get_pynauty_certificate():
     elist = [[0, 1], [1, 2], [2, 3]]
     G1 = nx.Graph()
