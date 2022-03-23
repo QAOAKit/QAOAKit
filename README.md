@@ -83,9 +83,11 @@ python -m QAOAKit.build_tables
 pytest
 ```
 
-If you have an issue like "Illegal Instruction (core dumped)", you may have to force pip to recompile Nauty binaries (`pip install --no-binary pynauty pynauty`) or install Nauty separately: https://pallini.di.uniroma1.it/
+#### Nauty installation issues
 
-#### Contributing
+If you have an issue like "Illegal Instruction (core dumped)", you may have to force pip to recompile Nauty binaries (`pip install --no-binary pynauty pynauty`), use conda (`conda install -c conda-forge pynauty`) or install Nauty separately: https://pallini.di.uniroma1.it/
+
+### Contributing
 
 You should set up the linter to run before every commit.
 ```
