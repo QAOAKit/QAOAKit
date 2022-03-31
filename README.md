@@ -61,13 +61,15 @@ More advanced examples are available in `examples` folder:
 Please cite the following paper when using QAOAKit:
 
 ```
-@article{2110.05555,
-Author = {Ruslan Shaydulin and Kunal Marwaha and Jonathan Wurtz and Phillip C. Lotshaw},
-Title = {QAOAKit: A Toolkit for Reproducible Study, Application, and Verification of the QAOA},
-Year = {2021},
-Eprint = {arXiv:2110.05555},
-Howpublished = {In Proceedings of the Second International Workshop on Quantum
-  Computing Software (in conjunction with SC21), 2021},
+@inproceedings{Shaydulin2021,
+  doi = {10.1109/qcs54837.2021.00011},
+  url = {https://doi.org/10.1109/qcs54837.2021.00011},
+  year = {2021},
+  month = nov,
+  publisher = {{IEEE}},
+  author = {Ruslan Shaydulin and Kunal Marwaha and Jonathan Wurtz and Phillip C. Lotshaw},
+  title = {{QAOAKit}: A Toolkit for Reproducible Study,  Application,  and Verification of the {QAOA}},
+  booktitle = {2021 {IEEE}/{ACM} Second International Workshop on Quantum Computing Software ({QCS})}
 }
 ```
 
