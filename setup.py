@@ -10,7 +10,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="QAOAKit",
-    version="0.1.12",
+    version="0.1.13",
     description="A Toolkit for Reproducible Study, Application and Verification of QAOA",
     long_description=long_description,
     long_description_content_type="text/markdown",
