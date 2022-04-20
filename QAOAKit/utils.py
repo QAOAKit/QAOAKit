@@ -607,7 +607,7 @@ def brute_force(obj_f, num_variables, minimize=False):
     bit_strings = (
         (
             (
-                np.array(range(2 ** num_variables))[:, None]
+                np.array(range(2**num_variables))[:, None]
                 & (1 << np.arange(num_variables))
             )
         )
@@ -646,8 +646,8 @@ def get_adjusted_state(state):
         raise ValueError("Input vector is not a valid statevector for qubits.")
     nqubits = int(nqubits)
 
-    adjusted_state = np.zeros(2 ** nqubits, dtype=complex)
-    for basis_state in range(2 ** nqubits):
+    adjusted_state = np.zeros(2**nqubits, dtype=complex)
+    for basis_state in range(2**nqubits):
         adjusted_state[state_reverse(basis_state, nqubits)] = state[basis_state]
     return adjusted_state
 
@@ -664,7 +664,7 @@ def state_to_ampl_counts(vec, eps=1e-15):
     str_format = "0{}b".format(qubit_dims)
     for kk in range(vec.shape[0]):
         val = vec[kk]
-        if val.real ** 2 + val.imag ** 2 > eps:
+        if val.real**2 + val.imag**2 > eps:
             counts[format(kk, str_format)] = val
     return counts
 
@@ -675,7 +675,7 @@ def precompute_energies(obj_f, nbits):
     that accelerates the energy computation in obj_from_statevector
     """
     bit_strings = (
-        ((np.array(range(2 ** nbits))[:, None] & (1 << np.arange(nbits)))) > 0
+        ((np.array(range(2**nbits))[:, None] & (1 << np.arange(nbits)))) > 0
     ).astype(int)
 
     return np.array([obj_f(x) for x in bit_strings])
