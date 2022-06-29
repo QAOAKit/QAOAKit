@@ -21,7 +21,7 @@ setup(
     packages=["QAOAKit"],
     install_requires=[
         "qiskit==0.29.0",
-        "pynauty==1.0.0",
+        "pynauty",
         "qiskit-optimization",
         "pandas",
         "networkx",
