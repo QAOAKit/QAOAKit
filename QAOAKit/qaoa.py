@@ -1,7 +1,7 @@
 # QAOA circuit for MAXCUT
 
 import networkx as nx
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, Aer, execute
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.compiler import transpile
 import numpy as np
 

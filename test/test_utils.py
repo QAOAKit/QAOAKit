@@ -1,8 +1,9 @@
 import networkx as nx
 import numpy as np
 import pandas as pd
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, execute
-from qiskit.providers.aer import AerSimulator
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit.compiler import transpile
+from qiskit_aer import AerSimulator
 from functools import partial
 from pathlib import Path
 import copy
@@ -50,7 +51,7 @@ from QAOAKit.examples_utils import get_20_node_erdos_renyi_graphs
 from QAOAKit.parameter_optimization import get_median_pre_trained_kde
 
 from qiskit_optimization import QuadraticProgram
-from qiskit.algorithms.minimum_eigen_solvers.qaoa import QAOAAnsatz
+from qiskit.circuit.library import QAOAAnsatz
 
 test_utils_folder = Path(__file__).parent
 
@@ -406,11 +407,15 @@ def test_no_save_state():
     qc.measure(range(6), creg)
     qc.measure(qreg_ancilla, creg_ancilla)
 
-    counts = (
-        execute(qc, AerSimulator(), basis_gates=["u1", "u2", "u3", "cx"])
-        .result()
-        .get_counts()
-    )
+    # Transpile the circuit for the simulation backend
+    backend = AerSimulator()
+    transpiled_qc = transpile(qc, backend, basis_gates=["u1", "u2", "u3", "cx"])
+
+    # Run the circuit on the backend
+    job = backend.run(transpiled_qc)
+    counts = job.result().get_counts()
+    print(counts)
+    
     assert isinstance(counts, dict)
 
 
