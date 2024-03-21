@@ -2,7 +2,7 @@ import numpy as np
 import networkx as nx
 from qiskit_optimization import QuadraticProgram
 from qiskit_optimization.algorithms import GoemansWilliamsonOptimizer
-from qiskit.algorithms.minimum_eigen_solvers.qaoa import QAOAAnsatz
+from qiskit.circuit.library import QAOAAnsatz
 
 from .utils import get_adjacency_matrix
 

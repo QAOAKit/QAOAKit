@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from functools import partial
-from qiskit.providers.aer import AerSimulator
+from qiskit_aer import AerSimulator
 import json
 import re
 import warnings
@@ -400,7 +400,7 @@ def load_results_file_into_dataframe(n_qubits, p):
             utils_folder,
             f"../data/qaoa-dataset-version1/Results/p={p}/n={n_qubits}_p={p}.txt",
         ),
-        delim_whitespace=True,
+        sep='\s+',
         names=colnames,
         header=None,
     )
